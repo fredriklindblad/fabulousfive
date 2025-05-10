@@ -17,7 +17,5 @@ module.exports = (() => {
     unstable_enablePackageExports: false,
   };
 
-  config.watchFolders = [...(config.watchFolders || []), './src/assets'];
-
   return config;
 })();
