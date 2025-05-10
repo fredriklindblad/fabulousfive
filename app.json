@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Fabulous Five",
+    "slug": "fabulousfive",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon-ff.png",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.fabulousfive.app"
+    },
+    "web": {
+      "output": "static",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-localization",
+      "expo-font",
+      "expo-router"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "1b4fa097-6ccf-4465-abd5-376c47e6f844"
+      }
+    },
+    "owner": "fredriklindblad"
+  }
+}
