@@ -25,3 +25,6 @@ Thumbs.db
 # ✅ GitHub & Vercel artifacts
 .vercel/
 
+# ✅ Expo
+archive/
+

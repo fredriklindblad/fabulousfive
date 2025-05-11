@@ -1,18 +1,26 @@
 // Skärm för att visa feed
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { getFeed } from '../services/firebase';
-import FeedItem from '../components/FeedItem';
+import { getFeed } from '@/services/firebase';
+import FeedItem from '@/components/FeedItem';
 import { useTranslation } from 'react-i18next';
-import { GlobalStyles } from '../globalStyles';
+import { GlobalStyles } from '../../archive/globalStyles';
 
-export default function FeedScreen() {
+console.log('Rendering FeedScreen');
+
+export default function IndexPage() {
   const [feed, setFeed] = useState([]);
   const { t } = useTranslation();
 
   useEffect(() => {
-    getFeed().then(setFeed).catch((err) => console.log("Feed error:", err));
+    getFeed()
+      .then(data => {
+        console.log("✅ Feed data:", data);
+        setFeed(data);
+      })
+      .catch((err) => console.log("Feed error:", err));
   }, []);
+
 
   return (
     <View style={GlobalStyles.container}>
