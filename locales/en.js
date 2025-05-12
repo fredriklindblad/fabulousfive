@@ -40,5 +40,6 @@ export default {
     no_goals: "No goals set yet.",
     no_recipes: "No recipes available.",
     calm: "Calm",
+    dinner: "Dinner",
   };
   

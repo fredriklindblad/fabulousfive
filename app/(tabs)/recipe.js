@@ -18,15 +18,17 @@ export default function RecipeScreen() {
 
   return (
     <View style={[GlobalStyles.container, { backgroundColor: GlobalColors.background }]}>
-      <Text style={GlobalStyles.header}>{t('recipes', 'Recept')}</Text>
+      <Text style={GlobalStyles.header}>{t('dinner', 'Middag')}</Text>
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <RecipeCard
+            id={item.id}
             title={item.title}
             description={item.description}
             image={item.image}
+            thumbnail={item.thumbnail}
           />
         )}
         ListEmptyComponent={

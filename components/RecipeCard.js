@@ -3,7 +3,7 @@ import { View, Text, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { GlobalStyles } from '@/globalStyles';
 
-export default function RecipeCard({ id, title, description, image }) {
+export default function RecipeCard({ id, title, description, image, thumbnail }) {
   const router = useRouter();
 
   const handlePress = () => {
@@ -13,9 +13,9 @@ export default function RecipeCard({ id, title, description, image }) {
   return (
     <Pressable onPress={handlePress}>
       <View style={GlobalStyles.card}>
-        {image && (
+        {thumbnail && (
           <Image
-            source={{ uri: image }}
+            source={{ uri: thumbnail }}
             style={{
               width: '100%',
               height: 150,

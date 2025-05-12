@@ -22,6 +22,7 @@ export const GlobalStyles = StyleSheet.create({
     color: GlobalColors.primaryText,
     fontFamily: 'Lato',
     marginBottom: 20,
+    textAlign: 'center',
   },
   text: {
     fontSize: 16,

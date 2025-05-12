@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { loginUser } from '@/services/auth';
 import { getAuth } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
+import { GlobalColors } from '@/globalStyles';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -30,10 +40,15 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>{t('login', 'Logga in')}</Text>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: GlobalColors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <Text style={styles.title}>{t('login', 'Logga in')}</Text>
+
       <TextInput
         placeholder={t('email', 'E-post')}
+        placeholderTextColor="#999"
         autoCapitalize="none"
         keyboardType="email-address"
         value={email}
@@ -43,25 +58,66 @@ export default function LoginScreen() {
       />
       <TextInput
         placeholder={t('password', 'Lösenord')}
+        placeholderTextColor="#999"
         secureTextEntry
         value={password}
         onChangeText={setPassword}
         style={styles.input}
       />
-      <Button title={t('login', 'Logga in')} onPress={handleLogin} />
-      <Text
-        style={styles.link}
-        onPress={() => router.push('/(auth)/register')}
-      >
-        {t('no_account', 'Har du inget konto? Skapa ett här.')}
-      </Text>
-    </View>
+
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>{t('login', 'Logga in')}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+        <Text style={styles.link}>{t('no_account', 'Har du inget konto? Skapa ett här.')}</Text>
+      </TouchableOpacity>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, flex: 1, justifyContent: 'center' },
-  input: { borderBottomWidth: 1, marginVertical: 10, padding: 8 },
-  header: { fontSize: 24, marginBottom: 20 },
-  link: { color: 'blue', marginTop: 10 }
+  container: {
+    flex: 1,
+    padding: 24,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    fontFamily: 'Lato',
+    color: GlobalColors.primaryText,
+    marginBottom: 32,
+    textAlign: 'center',
+  },
+  input: {
+    backgroundColor: '#f1f1f1',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    fontFamily: 'Lato',
+    color: GlobalColors.primaryText,
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: GlobalColors.primaryText,
+    paddingVertical: 16,
+    borderRadius: 30,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontFamily: 'Lato',
+    fontWeight: '600',
+  },
+  link: {
+    fontSize: 14,
+    color: GlobalColors.secondaryText,
+    fontFamily: 'Lato',
+    textAlign: 'center',
+    textDecorationLine: 'underline',
+  },
 });

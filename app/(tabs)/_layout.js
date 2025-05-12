@@ -13,7 +13,7 @@ export default function TabsLayout() {
         tabBarActiveTintColor: GlobalColors.primaryText,
         tabBarInactiveTintColor: GlobalColors.secondaryText,
         tabBarStyle: {
-          backgroundColor: '#DAC9B9',
+          backgroundColor: GlobalColors.background,
           borderTopWidth: 0,
           height: 60,
         },

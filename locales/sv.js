@@ -1,3 +1,5 @@
+import { determineNextResponse } from "expo-notifications/build/useLastNotificationResponse";
+
 export default {
     login: "Logga in",
     logout: "Logga ut",
@@ -40,4 +42,5 @@ export default {
     no_goals: "Inga mål satta ännu.",
     no_recipes: "Inga recept tillgängliga.",
     calm: "Stillhet",
+    dinner: "Middag",
   };
