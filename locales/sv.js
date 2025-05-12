@@ -39,4 +39,5 @@ export default {
     no_feed_items: "Inget att visa ännu.",
     no_goals: "Inga mål satta ännu.",
     no_recipes: "Inga recept tillgängliga.",
+    calm: "Stillhet",
   };

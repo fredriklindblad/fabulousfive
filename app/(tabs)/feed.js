@@ -4,7 +4,7 @@ import { View, Text, FlatList } from 'react-native';
 import { getFeed } from '@/services/firebase';
 import FeedItem from '@/components/FeedItem';
 import { useTranslation } from 'react-i18next';
-import { GlobalStyles } from '@/globalStyles';
+import { GlobalStyles, GlobalColors } from '@/globalStyles';
 
 console.log('📥 Rendering FeedScreen');
 
@@ -26,8 +26,10 @@ export default function FeedScreen() {
   }, []);
 
   return (
-    <View style={GlobalStyles.container}>
-      <Text style={GlobalStyles.header}>{t('daily_inspiration', 'Dagens inspiration')}</Text>
+    <View style={[GlobalStyles.container, { backgroundColor: GlobalColors.background }]}>
+      <Text style={GlobalStyles.header}>
+        {t('daily_inspiration', 'Dagens inspiration')}
+      </Text>
       <FlatList
         data={feed}
         keyExtractor={(item) => item.id}
@@ -35,7 +37,9 @@ export default function FeedScreen() {
           <FeedItem title={item.title} description={item.description} />
         )}
         ListEmptyComponent={
-          <Text style={GlobalStyles.text}>{t('no_feed_items', 'Inget att visa ännu.')}</Text>
+          <Text style={GlobalStyles.text}>
+            {t('no_feed_items', 'Inget att visa ännu.')}
+          </Text>
         }
       />
     </View>

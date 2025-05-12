@@ -39,5 +39,6 @@ export default {
     no_feed_items: "No feed items available.",
     no_goals: "No goals set yet.",
     no_recipes: "No recipes available.",
+    calm: "Calm",
   };
   

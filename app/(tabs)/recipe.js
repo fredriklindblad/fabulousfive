@@ -1,11 +1,12 @@
 // Skärm för att visa recept
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
+import { View, Text, FlatList } from 'react-native';
 import { getRecipes } from '@/services/firebase';
 import RecipeCard from '@/components/RecipeCard';
 import { useTranslation } from 'react-i18next';
+import { GlobalStyles, GlobalColors } from '@/globalStyles';
 
-console.log('Rendering RecipeScreen');
+console.log('📖 Rendering RecipeScreen');
 
 export default function RecipeScreen() {
   const [recipes, setRecipes] = useState([]);
@@ -16,8 +17,8 @@ export default function RecipeScreen() {
   }, []);
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>{t('recipes')}</Text>
+    <View style={[GlobalStyles.container, { backgroundColor: GlobalColors.background }]}>
+      <Text style={GlobalStyles.header}>{t('recipes', 'Recept')}</Text>
       <FlatList
         data={recipes}
         keyExtractor={(item) => item.id}
@@ -28,13 +29,12 @@ export default function RecipeScreen() {
             image={item.image}
           />
         )}
-        ListEmptyComponent={<Text>{t('no_recipes') || 'Inga recept ännu.'}</Text>}
+        ListEmptyComponent={
+          <Text style={GlobalStyles.text}>
+            {t('no_recipes', 'Inga recept ännu.')}
+          </Text>
+        }
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  header: { fontSize: 22, fontWeight: 'bold', marginBottom: 10 }
-});

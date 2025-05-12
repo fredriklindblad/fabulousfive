@@ -1,34 +1,31 @@
 // Firebase setup + Firestore + auth + push
 import { initializeApp } from 'firebase/app';
 import {
-  getReactNativePersistence,
+  getAuth,
   initializeAuth,
+  getReactNativePersistence,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  browserLocalPersistence,
 } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
+
 import {
   getFirestore,
   collection,
-  addDoc,
   getDocs,
-  doc,
-  setDoc,
-  getDoc,
-  updateDoc,
-  query,
-  where
 } from 'firebase/firestore';
+
 import {
   getStorage,
   ref,
   uploadBytes,
-  getDownloadURL
+  getDownloadURL,
 } from 'firebase/storage';
 
-
-// 🔁 Din Firebase-konfiguration
+// 🔁 Firebase-konfiguration
 const firebaseConfig = {
   apiKey: "AIzaSyBj1gG1GNEeByY9klJB0YB14D5tZkMcNdg",
   authDomain: "fabulousfiveapp.firebaseapp.com",
@@ -37,27 +34,35 @@ const firebaseConfig = {
   messagingSenderId: "575552397620",
   appId: "1:575552397620:web:57397740dbb43b6f154561",
   measurementId: "G-ZR3W2EQZVR"
-  };
+};
 
-// Initiera Firebase-app
+// 🔥 Init Firebase
 const app = initializeApp(firebaseConfig);
 
-// ✅ Initiera Auth med AsyncStorage (viktigt för React Native)
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
+// 📱 Mobil eller 🌐 Web – rätt auth beroende på plattform
+let auth;
+if (Platform.OS === 'web') {
+  auth = getAuth(app);
+  auth.setPersistence(browserLocalPersistence);
+} else {
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+}
 
-export const db = getFirestore(app);
-export const storage = getStorage(app);
+// 🔗 Exportera Firestore och Storage
+const db = getFirestore(app);
+const storage = getStorage(app);
 
-// Feed
+// 📥 Firestore queries
 export const getFeed = async () => {
-  const snapshot = await getDocs(collection(db, "feed"));
+  const snapshot = await getDocs(collection(db, 'feed'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-// Recept
 export const getRecipes = async () => {
-  const snapshot = await getDocs(collection(db, "recipes"));
+  const snapshot = await getDocs(collection(db, 'recipes'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
+
+export { auth, db, storage };

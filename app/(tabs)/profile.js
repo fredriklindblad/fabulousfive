@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'expo-router';
 import { signOutUser } from '@/services/auth';
+import { GlobalStyles, GlobalColors } from '@/globalStyles';
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
@@ -18,7 +19,7 @@ export default function ProfileScreen() {
   const handleLogout = async () => {
     try {
       await signOutUser();
-      await AsyncStorage.removeItem('onboardingDone'); // valfritt
+      await AsyncStorage.removeItem('onboardingDone');
       router.replace('/(auth)/login');
     } catch (err) {
       Alert.alert(t('logout_failed', 'Utloggning misslyckades'), err.message);
@@ -26,17 +27,28 @@ export default function ProfileScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>{t('profile', 'Profil')}</Text>
-      <Button title={t('logout', 'Logga ut')} onPress={handleLogout} />
+    <View style={[GlobalStyles.container, styles.center]}>
+      <Text style={GlobalStyles.header}>{t('profile', 'Profil')}</Text>
+
+      <TouchableOpacity style={GlobalStyles.buttonPrimary} onPress={handleLogout}>
+        <Text style={GlobalStyles.buttonText}>{t('logout', 'Logga ut')}</Text>
+      </TouchableOpacity>
+
       <View style={styles.space} />
-      <Button title={t('change_language', 'Byt språk')} onPress={toggleLanguage} />
+
+      <TouchableOpacity style={GlobalStyles.buttonPrimary} onPress={toggleLanguage}>
+        <Text style={GlobalStyles.buttonText}>{t('change_language', 'Byt språk')}</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, justifyContent: 'center' },
-  header: { fontSize: 24, marginBottom: 20 },
-  space: { height: 20 }
+  center: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  space: {
+    height: 20,
+  },
 });
