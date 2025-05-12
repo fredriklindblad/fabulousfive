@@ -9,16 +9,15 @@ export default function Index() {
 
   useEffect(() => {
     const checkStatus = async () => {
-      let onboardingDone;
-
-      // ✅ Hämta onboarding-status olika beroende på plattform
       if (Platform.OS === 'web') {
-        onboardingDone = localStorage.getItem('onboardingDone');
-      } else {
-        onboardingDone = await AsyncStorage.getItem('onboardingDone');
+        // 👉 Direkt till flödet på webben
+        setInitialRoute('/(tabs)/feed');
+        return;
       }
 
+      const onboardingDone = await AsyncStorage.getItem('onboardingDone');
       const auth = getAuth();
+
       onAuthStateChanged(auth, (user) => {
         if (!onboardingDone) {
           setInitialRoute('/onboarding');
