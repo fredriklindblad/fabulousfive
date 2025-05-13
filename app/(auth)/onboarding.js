@@ -50,7 +50,7 @@ export default function OnboardingScreen() {
       lang,
       theme,
     });
-    router.replace('/(auth)/login');
+    router.replace('/auth/login');
   };
 
   return (
