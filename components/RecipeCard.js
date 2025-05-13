@@ -1,11 +1,11 @@
 import React from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny import
+import { useGlobalStyles } from '@/globalStyles';
 
 export default function RecipeCard({ id, title, description, image, thumbnail }) {
   const router = useRouter();
-  const { styles } = useGlobalStyles(); // ⬅️ hämta stilar (färger följer med om du vill)
+  const { styles, colors } = useGlobalStyles();
 
   const handlePress = () => {
     router.push(`/recipe/${id}`);
@@ -25,12 +25,30 @@ export default function RecipeCard({ id, title, description, image, thumbnail })
             }}
           />
         )}
-        <Text style={styles.cardTitle} numberOfLines={1}>
+        <Text
+          style={{
+            fontFamily: 'LatoBold',
+            fontSize: 16,
+            color: colors.primaryText,
+            marginBottom: 4,
+          }}
+          numberOfLines={1}
+        >
           {title}
         </Text>
-        <Text style={styles.cardText} numberOfLines={3}>
-          {description}
-        </Text>
+        {description && (
+          <Text
+            style={{
+              fontFamily: 'Lato',
+              fontSize: 14,
+              color: colors.secondaryText,
+              lineHeight: 20,
+            }}
+            numberOfLines={3}
+          >
+            {description}
+          </Text>
+        )}
       </View>
     </Pressable>
   );

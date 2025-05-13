@@ -8,6 +8,8 @@ import '@/services/i18n';
 export default function Layout() {
   const [fontsLoaded] = useFonts({
     Lato: require('../assets/fonts/Lato-Regular.ttf'),
+    'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
+    'LatoItalic': require('../assets/fonts/Lato-Italic.ttf'),
   });
 
   if (!fontsLoaded) {
