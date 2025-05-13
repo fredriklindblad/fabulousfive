@@ -9,17 +9,19 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { loginUser } from '@/services/auth';
+import { loginUser, resetPassword } from '@/services/auth';
+import { Ionicons } from '@expo/vector-icons';
 import { getAuth } from 'firebase/auth';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { GlobalColors } from '@/globalStyles';
+import { useGlobalStyles } from '@/globalStyles'; // ⬅️ Ny import
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { t } = useTranslation();
   const router = useRouter();
+  const { styles: global, colors } = useGlobalStyles(); // ⬅️ Dark/light hook
 
   useEffect(() => {
     const unsubscribe = getAuth().onAuthStateChanged((user) => {
@@ -30,21 +32,45 @@ export default function LoginScreen() {
     return unsubscribe;
   }, []);
 
-  const handleLogin = async () => {
-    try {
-      await loginUser(email.trim(), password);
-      router.replace('/(tabs)/feed');
-    } catch (error) {
-      Alert.alert(t('login_failed', 'Inloggning misslyckades'), error.message);
+const handleLogin = async () => {
+  try {
+    await loginUser(email.trim(), password);
+    router.replace('/(tabs)/feed');
+  } catch (error) {
+    console.log('❌ Login error:', error.code);
+    let message = '';
+
+    switch (error.code) {
+      case 'auth/invalid-email':
+        message = t('invalid_email', 'Ogiltig e-postadress.');
+        break;
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+        message = t('wrong_credentials', 'Fel e-postadress eller lösenord.');
+        break;
+      case 'auth/too-many-requests':
+        message = t('too_many_attempts', 'För många försök – försök igen senare.');
+        break;
+      default:
+        message = error.message;
     }
-  };
+
+    Alert.alert(t('login_failed', 'Inloggning misslyckades'), message);
+  }
+};
+
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: GlobalColors.background }]}
+      style={[local.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <Text style={styles.title}>{t('login', 'Logga in')}</Text>
+      <TouchableOpacity onPress={() => router.replace('/(auth)')}>
+        <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+      </TouchableOpacity>
+      <Text style={[local.title, { color: colors.primaryText }]}>
+        {t('login', 'Logga in')}
+      </Text>
 
       <TextInput
         placeholder={t('email', 'E-post')}
@@ -53,7 +79,7 @@ export default function LoginScreen() {
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
-        style={styles.input}
+        style={[local.input, { color: colors.primaryText }]}
         autoFocus
       />
       <TextInput
@@ -62,21 +88,37 @@ export default function LoginScreen() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        style={styles.input}
+        style={[local.input, { color: colors.primaryText }]}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
-        <Text style={styles.buttonText}>{t('login', 'Logga in')}</Text>
+      <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handleLogin}>
+        <Text style={local.buttonText}>{t('login', 'Logga in')}</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-        <Text style={styles.link}>{t('no_account', 'Har du inget konto? Skapa ett här.')}</Text>
+      <TouchableOpacity
+        onPress={() => {
+          if (!email) {
+            Alert.alert(t('error', 'Fel'), t('enter_email_first', 'Fyll i din e-postadress först.'));
+            return;
+          }
+          resetPassword(email.trim())
+            .then(() => {
+              router.replace('/(auth)/reset-sent');
+            })
+            .catch((err) => {
+              Alert.alert(t('error', 'Fel'), err.message);
+            });
+        }}
+      >
+        <Text style={[local.link, { color: colors.secondaryText }]}>
+          {t('forgot_password', 'Glömt lösenord?')}
+        </Text>
       </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
@@ -86,7 +128,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     fontFamily: 'Lato',
-    color: GlobalColors.primaryText,
     marginBottom: 32,
     textAlign: 'center',
   },
@@ -97,11 +138,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     fontFamily: 'Lato',
-    color: GlobalColors.primaryText,
     marginBottom: 16,
   },
   button: {
-    backgroundColor: GlobalColors.primaryText,
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: 'center',
@@ -115,7 +154,6 @@ const styles = StyleSheet.create({
   },
   link: {
     fontSize: 14,
-    color: GlobalColors.secondaryText,
     fontFamily: 'Lato',
     textAlign: 'center',
     textDecorationLine: 'underline',

@@ -1,3 +1,4 @@
+// app/(tabs)/profile.js
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -7,25 +8,31 @@ import {
   Alert,
   TextInput,
   ScrollView,
+  Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
+import { useLanguageContext } from '@/LanguageContext';
 import { useRouter } from 'expo-router';
 import { signOutUser } from '@/services/auth';
-import { GlobalColors } from '@/globalStyles';
+import { useGlobalStyles } from '@/globalStyles';
+import { useThemeContext } from '@/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
 
 const ALL_INTERESTS = ['Träning', 'Kost', 'Stillhet', 'Sömn', 'Socialt'];
 
 export default function ProfileScreen() {
   const { t, i18n } = useTranslation();
+  const { changeLanguage, language } = useLanguageContext();
   const router = useRouter();
-
   const [name, setName] = useState('');
   const [interests, setInterests] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [editedInterests, setEditedInterests] = useState([]);
+
+  const { styles: global, colors } = useGlobalStyles();
+  const { theme, setTheme } = useThemeContext();
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,12 +45,6 @@ export default function ProfileScreen() {
     };
     loadData();
   }, []);
-
-  const toggleLanguage = async () => {
-    const newLang = i18n.language === 'sv' ? 'en' : 'sv';
-    await i18n.changeLanguage(newLang);
-    await AsyncStorage.setItem('lang', newLang);
-  };
 
   const toggleInterest = (interest) => {
     setEditedInterests((prev) =>
@@ -73,24 +74,25 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: GlobalColors.background }}
-      contentContainerStyle={[styles.container, { backgroundColor: GlobalColors.background }]}>
-      <Ionicons name="flower-outline" size={120} color={GlobalColors.primaryText} style={styles.icon} />
-      
-      <Text style={styles.name}>{name || 'Ditt namn'}</Text>
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={local.container}
+    >
+      <Ionicons name="flower-outline" size={120} color={colors.primaryText} style={local.icon} />
+
+      <Text style={[local.name, { color: colors.primaryText }]}> {name || 'Ditt namn'} </Text>
 
       {!isEditing ? (
         <>
-          <Text style={styles.subtext}>Dina fokusområden:</Text>
-          <View style={styles.interests}>
-            {interests.length > 0 ? interests.map((interest) => (
-              <View key={interest} style={styles.tag}>
-                <Text style={styles.tagText}>{interest}</Text>
-              </View>
-            )) : (
-              <Text style={[styles.subtext, { fontStyle: 'italic' }]}>
-                Du har inte valt några fokusområden än.
-              </Text>
+          <Text style={[local.subtext, { color: colors.secondaryText }]}>Dina fokusområden:</Text>
+          <View style={local.interests}>
+            {interests.length > 0 ? (
+              interests.map((interest) => (
+                <View key={interest} style={[local.tag, { backgroundColor: colors.cardBackground }]}>
+                  <Text style={[local.tagText, { color: colors.primaryText }]}>{interest}</Text>
+                </View>
+              ))
+            ) : (
+              <Text style={[local.subtext, { fontStyle: 'italic', color: colors.secondaryText }]}>Du har inte valt några fokusområden än.</Text>
             )}
           </View>
         </>
@@ -99,25 +101,20 @@ export default function ProfileScreen() {
           <TextInput
             value={editedName}
             onChangeText={setEditedName}
-            style={styles.input}
             placeholder="Ditt namn"
+            placeholderTextColor="#888"
+            style={[local.input, { color: colors.primaryText }]}
           />
-          <Text style={styles.subtext}>Välj dina fokusområden:</Text>
-          <View style={styles.interests}>
+          <Text style={[local.subtext, { color: colors.secondaryText }]}>Välj dina fokusområden:</Text>
+          <View style={local.interests}>
             {ALL_INTERESTS.map((interest) => (
               <TouchableOpacity
                 key={interest}
                 onPress={() => toggleInterest(interest)}
-                style={[
-                  styles.interestButton,
-                  editedInterests.includes(interest) && styles.interestSelected,
-                ]}
+                style={[local.interestButton, editedInterests.includes(interest) && { backgroundColor: colors.cardBackground }]}
               >
                 <Text
-                  style={[
-                    styles.interestText,
-                    editedInterests.includes(interest) && styles.interestTextSelected,
-                  ]}
+                  style={[local.interestText, editedInterests.includes(interest) && { fontWeight: 'bold', color: colors.primaryText }]}
                 >
                   {interest}
                 </Text>
@@ -127,32 +124,55 @@ export default function ProfileScreen() {
         </>
       )}
 
-      <View style={styles.actions}>
+      <View style={local.actions}>
         <TouchableOpacity
-          style={styles.button}
+          style={[local.button, { backgroundColor: '#DBBEC0' }]}
           onPress={isEditing ? handleSave : () => setIsEditing(true)}
         >
-          <Text style={styles.buttonText}>{isEditing ? 'Spara ändringar' : 'Redigera profil'}</Text>
+        <Text style={local.buttonText}>
+          {isEditing ? t('save_changes', 'Spara ändringar') : t('edit_profile', 'Redigera profil')}
+        </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button} onPress={toggleLanguage}>
-          <Text style={styles.buttonText}>{t('change_language', 'Byt språk')}</Text>
-        </TouchableOpacity>
+        <View style={[global.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          <Text style={global.cardText}>🌙 Mörkt läge</Text>
+          <Switch
+            value={theme === 'dark'}
+            onValueChange={(value) => setTheme(value ? 'dark' : 'light')}
+            thumbColor={theme === 'dark' ? '#fff' : '#888'}
+            trackColor={{ false: '#ccc', true: colors.primaryText }}
+          />
+        </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleLogout}>
-          <Text style={styles.buttonText}>{t('logout', 'Logga ut')}</Text>
+        <View style={[global.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
+          <Text style={global.cardText}>{language === 'sv' ? '🇸🇪 Svenska' : '🇺🇸 English'}</Text>
+          <Switch
+            value={language === 'en'}
+            onValueChange={(value) => {
+              const newLang = value ? 'en' : 'sv';
+              changeLanguage(newLang);
+            }}
+            thumbColor={language === 'en' ? '#fff' : '#888'}
+            trackColor={{ false: '#ccc', true: colors.primaryText }}
+          />
+        </View>
+
+        <TouchableOpacity
+          style={[local.button, { backgroundColor: '#DBBEC0' }]}
+          onPress={handleLogout}
+        >
+          <Text style={local.buttonText}>{t('logout', 'Logga ut')}</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
   container: {
     flexGrow: 1,
     alignItems: 'center',
     padding: 24,
-    backgroundColor: GlobalColors.background,
   },
   icon: {
     marginTop: 40,
@@ -162,12 +182,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontFamily: 'Lato',
     fontWeight: 'bold',
-    color: GlobalColors.primaryText,
     marginBottom: 4,
   },
   subtext: {
     fontSize: 14,
-    color: GlobalColors.secondaryText,
     fontFamily: 'Lato',
     textAlign: 'center',
     marginBottom: 32,
@@ -195,22 +213,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     margin: 4,
   },
-  interestSelected: {
-    backgroundColor: '#cde5d7',
-  },
   interestText: {
+    fontFamily: 'Lato',
     color: '#555',
-    fontWeight: '500',
-  },
-  interestTextSelected: {
-    color: '#2b5a3c',
   },
   actions: {
     width: '100%',
     gap: 12,
   },
   button: {
-    backgroundColor: GlobalColors.primaryText,
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 30,
@@ -225,7 +236,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   tag: {
-    backgroundColor: GlobalColors.cardBackground,
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -234,9 +244,5 @@ const styles = StyleSheet.create({
   tagText: {
     fontFamily: 'Lato',
     fontSize: 14,
-    color: GlobalColors.primaryText,
-  },
-  scrollContainer: {
-    flex: 1,
   },
 });

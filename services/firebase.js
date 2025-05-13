@@ -16,6 +16,8 @@ import {
   getFirestore,
   collection,
   getDocs,
+  doc,
+  setDoc
 } from 'firebase/firestore';
 
 import {
@@ -63,6 +65,19 @@ export const getFeed = async () => {
 export const getRecipes = async () => {
   const snapshot = await getDocs(collection(db, 'recipes'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
+export const saveUserProfile = async (profileData) => {
+  const user = auth.currentUser;
+  if (!user) throw new Error('Ingen användare inloggad');
+
+  const userRef = doc(db, 'users', user.uid);
+  await setDoc(userRef, {
+    ...profileData,
+    uid: user.uid,
+    email: user.email,
+    createdAt: new Date().toISOString()
+  });
 };
 
 export { auth, db, storage };

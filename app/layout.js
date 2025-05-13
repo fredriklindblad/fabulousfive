@@ -1,6 +1,8 @@
 import { Slot } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { ActivityIndicator, View } from 'react-native';
+import { ThemeProvider } from '@/ThemeContext';
+import { LanguageProvider } from '@/LanguageContext';
 import '@/services/i18n';
 
 export default function Layout() {
@@ -16,5 +18,11 @@ export default function Layout() {
     );
   }
 
-  return <Slot />;
+  return (
+    <ThemeProvider>
+      <LanguageProvider>
+        <Slot />
+      </LanguageProvider>
+    </ThemeProvider>
+  );
 }

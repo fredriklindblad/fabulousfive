@@ -43,4 +43,12 @@ export default {
     no_recipes: "Inga recept tillgängliga.",
     calm: "Stillhet",
     dinner: "Middag",
+    forgot_password: "Glömt lösenord?",
+    password_reset_sent: "Lösenordsåterställning skickad",
+    check_email: "Kolla din inkorg för återställningslänk.",
+    enter_email_first: "Fyll i din e-postadress först.",
+    back_to_login: "Tillbaka till inloggning",
+    check_spam: "Tips: Kolla även skräpposten om du inte ser mejlet direkt.",
+    auto_redirect: "Du skickas tillbaka till inloggningen om 10 sekunder...",
+    edit_profile: "Redigera profil",
   };

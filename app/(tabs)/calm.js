@@ -1,66 +1,72 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, Pressable, Linking } from 'react-native';
-import { GlobalColors, GlobalStyles } from '@/globalStyles';
+import { ScrollView, Text, StyleSheet, Image, Pressable, Linking } from 'react-native';
+import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny hook
 
 export default function CalmScreen() {
+  const { styles: global, colors } = useGlobalStyles(); // ⬅️ hämta färger & stilar
+
   const openInstagram = () => {
     Linking.openURL('https://www.instagram.com/fabulousfive.se');
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: GlobalColors.background }]}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={local.container}
+    >
       <Image
-        source={require('@/assets/calm-illustration.png')} // Byt till en lugn illustration (t.ex. sittande person, natur etc.)
-        style={styles.image}
+        source={require('@/assets/calm-illustration.png')}
+        style={local.image}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Stillhet 🌿</Text>
-      <Text style={styles.subtitle}>Din plats för återhämtning, fokus och lugn.</Text>
-      <Text style={styles.text}>
+      <Text style={[local.title, { color: colors.primaryText }]}>Stillhet 🌿</Text>
+      <Text style={[local.subtitle, { color: colors.secondaryText }]}>
+        Din plats för återhämtning, fokus och lugn.
+      </Text>
+      <Text style={[local.text, { color: colors.primaryText }]}>
         Snart kan du utforska meditationer, andningsövningar och stilla stunder direkt i appen.
       </Text>
-      <Pressable style={styles.button} onPress={openInstagram}>
-        <Text style={styles.buttonText}>Följ @fabulousfive.se</Text>
+      <Pressable style={[local.button, { backgroundColor: '#DBBEC0' }]} onPress={openInstagram}>
+        <Text style={local.buttonText}>Följ @fabulousfive.se</Text>
       </Pressable>
-    </View>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
   container: {
-    flex: 1,
     padding: 24,
     alignItems: 'center',
     justifyContent: 'center',
+    flexGrow: 1,
   },
   image: {
-    width: 220,
-    height: 220,
-    marginBottom: 32,
+    width: '100%',
+    height: undefined,
+    aspectRatio: 1,
+    marginBottom: 0,
+    borderRadius: 5,
   },
   title: {
-    fontSize: 32,
+    fontSize: 24,
     fontWeight: 'bold',
     fontFamily: 'Lato',
-    color: GlobalColors.primaryText,
     marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 18,
     fontFamily: 'Lato',
-    color: GlobalColors.secondaryText,
     marginBottom: 16,
     textAlign: 'center',
   },
   text: {
     fontSize: 16,
     fontFamily: 'Lato',
-    color: GlobalColors.primaryText,
     textAlign: 'center',
     marginBottom: 32,
   },
   button: {
-    backgroundColor: GlobalColors.primaryText,
     paddingVertical: 12,
     paddingHorizontal: 28,
     borderRadius: 30,

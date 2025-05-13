@@ -9,10 +9,11 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { createUser } from '@/services/auth';
+import { registerUser } from '@/services/auth';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { GlobalColors } from '@/globalStyles';
+import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny hook
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -20,21 +21,28 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const { t } = useTranslation();
   const router = useRouter();
+  const { styles: global, colors } = useGlobalStyles(); // ⬅️ dark/light
 
   const handleRegister = async () => {
     if (password.length < 6) {
-      Alert.alert(t('registration_failed', 'Registrering misslyckades'), t('password_too_short', 'Lösenordet måste vara minst 6 tecken.'));
+      Alert.alert(
+        t('registration_failed', 'Registrering misslyckades'),
+        t('password_too_short', 'Lösenordet måste vara minst 6 tecken.')
+      );
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert(t('registration_failed', 'Registrering misslyckades'), t('passwords_not_matching', 'Lösenorden matchar inte.'));
+      Alert.alert(
+        t('registration_failed', 'Registrering misslyckades'),
+        t('passwords_not_matching', 'Lösenorden matchar inte.')
+      );
       return;
     }
 
     try {
-      await createUser(email.trim(), password);
-      router.replace('/(tabs)/feed');
+      await registerUser(email.trim(), password);
+      router.replace('/(auth)/onboarding');
     } catch (error) {
       Alert.alert(t('registration_failed', 'Registrering misslyckades'), error.message);
     }
@@ -42,10 +50,15 @@ export default function RegisterScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: GlobalColors.background }]}
+      style={[local.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <Text style={styles.title}>{t('register', 'Skapa konto')}</Text>
+      <TouchableOpacity onPress={() => router.replace('/(auth)')}>
+        <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+      </TouchableOpacity>
+      <Text style={[local.title, { color: colors.primaryText }]}>
+        {t('register', 'Skapa konto')}
+      </Text>
 
       <TextInput
         placeholder={t('email', 'E-post')}
@@ -54,7 +67,7 @@ export default function RegisterScreen() {
         keyboardType="email-address"
         value={email}
         onChangeText={setEmail}
-        style={styles.input}
+        style={[local.input, { color: colors.primaryText }]}
       />
       <TextInput
         placeholder={t('password', 'Lösenord')}
@@ -62,7 +75,7 @@ export default function RegisterScreen() {
         secureTextEntry
         value={password}
         onChangeText={setPassword}
-        style={styles.input}
+        style={[local.input, { color: colors.primaryText }]}
       />
       <TextInput
         placeholder={t('confirm_password', 'Bekräfta lösenord')}
@@ -70,15 +83,15 @@ export default function RegisterScreen() {
         secureTextEntry
         value={confirmPassword}
         onChangeText={setConfirmPassword}
-        style={styles.input}
+        style={[local.input, { color: colors.primaryText }]}
       />
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>{t('register', 'Skapa konto')}</Text>
+      <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handleRegister}>
+        <Text style={local.buttonText}>{t('register', 'Skapa konto')}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-        <Text style={styles.link}>
+        <Text style={[local.link, { color: colors.secondaryText }]}>
           {t('already_account', 'Har du redan ett konto? Logga in här.')}
         </Text>
       </TouchableOpacity>
@@ -86,7 +99,7 @@ export default function RegisterScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const local = StyleSheet.create({
   container: {
     flex: 1,
     padding: 24,
@@ -96,7 +109,6 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     fontFamily: 'Lato',
-    color: GlobalColors.primaryText,
     marginBottom: 32,
     textAlign: 'center',
   },
@@ -107,11 +119,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     fontFamily: 'Lato',
-    color: GlobalColors.primaryText,
     marginBottom: 16,
   },
   button: {
-    backgroundColor: GlobalColors.primaryText,
     paddingVertical: 16,
     borderRadius: 30,
     alignItems: 'center',
@@ -125,7 +135,6 @@ const styles = StyleSheet.create({
   },
   link: {
     fontSize: 14,
-    color: GlobalColors.secondaryText,
     fontFamily: 'Lato',
     textAlign: 'center',
     textDecorationLine: 'underline',

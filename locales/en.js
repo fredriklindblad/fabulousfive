@@ -41,5 +41,13 @@ export default {
     no_recipes: "No recipes available.",
     calm: "Calm",
     dinner: "Dinner",
+    forgot_password: "Forgot password?",
+    password_reset_sent: "Password reset link sent",
+    check_email: "Check your inbox for the reset link.",
+    enter_email_first: "Enter your email first.",
+    back_to_login: "Back to login",
+    check_spam: "Tip: Check your spam folder if you don’t see the email right away.",
+    auto_redirect: "You’ll be redirected to login in 10 seconds...",
+    edit_profile: "Edit Profile",
   };
   

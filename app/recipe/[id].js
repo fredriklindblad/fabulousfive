@@ -3,13 +3,14 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/services/firebase';
-import { GlobalStyles } from '@/globalStyles';
+import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny hook
 import { Ionicons } from '@expo/vector-icons';
 
 export default function RecipeDetail() {
   const { id } = useLocalSearchParams();
   const [recipe, setRecipe] = useState(null);
   const router = useRouter();
+  const { styles, colors } = useGlobalStyles(); // ⬅️ hämta dark/light-stilar
 
   useEffect(() => {
     const fetchRecipe = async () => {
@@ -24,8 +25,8 @@ export default function RecipeDetail() {
 
   if (!recipe) {
     return (
-      <View style={GlobalStyles.container}>
-        <Text style={GlobalStyles.text}>Laddar recept...</Text>
+      <View style={styles.container}>
+        <Text style={styles.text}>Laddar recept...</Text>
       </View>
     );
   }
@@ -39,7 +40,7 @@ export default function RecipeDetail() {
           top: 40,
           right: 20,
           zIndex: 10,
-          backgroundColor: 'rgba(255,255,255,0.8)',
+          backgroundColor: 'rgba(255,255,255,0.8)', // 👈 Vill du ha detta mörkare i dark mode?
           padding: 8,
           borderRadius: 30,
           shadowColor: '#000',
@@ -51,21 +52,21 @@ export default function RecipeDetail() {
         <Ionicons name="arrow-back" size={24} color="#333" />
       </Pressable>
 
-      <ScrollView style={GlobalStyles.container}>
+      <ScrollView style={styles.container}>
         {recipe.image && (
           <Image
             source={{ uri: recipe.image }}
             style={{ width: '100%', height: 220, borderRadius: 12, marginBottom: 20 }}
           />
         )}
-        <Text style={GlobalStyles.header}>{recipe.title}</Text>
-        <Text style={GlobalStyles.text}>{recipe.description}</Text>
+        <Text style={styles.header}>{recipe.title}</Text>
+        <Text style={styles.text}>{recipe.description}</Text>
 
         {recipe.ingredients && (
           <>
-            <Text style={[GlobalStyles.cardTitle, { marginTop: 20 }]}>Ingredienser:</Text>
+            <Text style={[styles.cardTitle, { marginTop: 20 }]}>Ingredienser:</Text>
             {recipe.ingredients.map((item, index) => (
-              <Text key={index} style={GlobalStyles.cardText}>• {item}</Text>
+              <Text key={index} style={styles.cardText}>• {item}</Text>
             ))}
           </>
         )}

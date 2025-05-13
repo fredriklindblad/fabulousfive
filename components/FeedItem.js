@@ -1,13 +1,14 @@
-// components/FeedItem.js
 import React from 'react';
 import { View, Text } from 'react-native';
-import { GlobalStyles } from '@/globalStyles';
+import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny hook
 
 export default function FeedItem({ title, description }) {
+  const { styles } = useGlobalStyles(); // ⬅️ använder dynamiska stilar
+
   return (
-    <View style={GlobalStyles.card}>
-      <Text style={GlobalStyles.cardTitle}>{title}</Text>
-      <Text style={GlobalStyles.cardText}>{description}</Text>
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={styles.cardText}>{description}</Text>
     </View>
   );
 }
