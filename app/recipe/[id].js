@@ -123,7 +123,7 @@ export default function RecipeDetail() {
             <Text style={[styles.cardTitle, {
               marginTop: 0,
               marginBottom: 12,
-              fontFamily: 'Lato-Bold',
+              fontFamily: 'LatoBold',
             }]}>
               Ingredienser
             </Text>
@@ -139,7 +139,7 @@ export default function RecipeDetail() {
             <Text style={[styles.cardTitle, {
               marginTop: 24,
               marginBottom: 12,
-              fontFamily: 'Lato-Bold',
+              fontFamily: 'LatoBold',
             }]}>
               Steg för steg
             </Text>

@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import { loginUser, resetPassword } from '@/services/auth';
 import { Ionicons } from '@expo/vector-icons';
-import { getAuth } from 'firebase/auth';
+import { auth } from '@/services/firebase';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles'; // ⬅️ Ny import
+
+console.log('✅ login.js loaded');
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
@@ -24,13 +26,14 @@ export default function LoginScreen() {
   const { styles: global, colors } = useGlobalStyles(); // ⬅️ Dark/light hook
 
   useEffect(() => {
-    const unsubscribe = getAuth().onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         router.replace('/(tabs)/feed');
       }
     });
     return unsubscribe;
   }, []);
+
 
 const handleLogin = async () => {
   try {

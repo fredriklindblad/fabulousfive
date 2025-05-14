@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon-ff.png",
     "userInterfaceStyle": "automatic",
+    "scheme": "fabulousfive",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -15,7 +16,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "jsEngine": "jsc"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +34,8 @@
       "expo-notifications",
       "expo-localization",
       "expo-font",
-      "expo-router"
+      "expo-router",
+      "expo-secure-store"
     ],
     "extra": {
       "eas": {

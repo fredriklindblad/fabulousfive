@@ -1,13 +1,8 @@
-// Firebase setup + Firestore + auth + push
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps } from 'firebase/app';
 import {
   getAuth,
   initializeAuth,
   getReactNativePersistence,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  browserLocalPersistence,
 } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Platform } from 'react-native';
@@ -27,7 +22,7 @@ import {
   getDownloadURL,
 } from 'firebase/storage';
 
-// 🔁 Firebase-konfiguration
+// 🔐 Firebase-konfiguration
 const firebaseConfig = {
   apiKey: "AIzaSyBj1gG1GNEeByY9klJB0YB14D5tZkMcNdg",
   authDomain: "fabulousfiveapp.firebaseapp.com",
@@ -38,25 +33,28 @@ const firebaseConfig = {
   measurementId: "G-ZR3W2EQZVR"
 };
 
-// 🔥 Init Firebase
-const app = initializeApp(firebaseConfig);
+// ✅ Initiera bara om det inte redan finns appar (viktigt vid hot reload)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-// 📱 Mobil eller 🌐 Web – rätt auth beroende på plattform
+// 📱 Mobil vs Web – auth init
 let auth;
 if (Platform.OS === 'web') {
   auth = getAuth(app);
-  auth.setPersistence(browserLocalPersistence);
 } else {
-  auth = initializeAuth(app, {
-    persistence: getReactNativePersistence(AsyncStorage),
-  });
+  try {
+    auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch (error) {
+    auth = getAuth(app);
+  }
 }
 
-// 🔗 Exportera Firestore och Storage
+// 🔥 Databas + Storage
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// 📥 Firestore queries
+// 🔎 Queries
 export const getFeed = async () => {
   const snapshot = await getDocs(collection(db, 'feed'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));

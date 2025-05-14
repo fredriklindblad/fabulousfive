@@ -24,7 +24,7 @@ export function useGlobalStyles() {
       fontSize: 24,
       fontWeight: 'bold',
       color: colors.primaryText,
-      fontFamily: 'Lato',
+      fontFamily: 'LatoBold',
       marginBottom: 20,
       textAlign: 'center',
     },

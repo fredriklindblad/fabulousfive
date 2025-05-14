@@ -9,23 +9,16 @@ import { Image, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useGlobalStyles } from '@/globalStyles';
 import '@/services/i18n';
+import { useUser } from '@/contexts/UserContext';
+import { Text } from 'react-native';
 
-export default function TabsLayoutWrapper() {
-  const [fontsLoaded] = useFonts({
-    Lato: require('../../assets/fonts/Lato-Regular.ttf'),
-  });
 
+export default function TabsLayout() {
   const { t } = useTranslation();
   const router = useRouter();
   const { colors } = useGlobalStyles();
+  const user = useUser();
 
-  if (!fontsLoaded) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
 
   return (
     <ThemeProvider>
@@ -93,6 +86,18 @@ export default function TabsLayoutWrapper() {
               title: t('profile', 'Profil'),
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="person-outline" size={size} color={color} />
+              ),
+              headerTitleAlign: 'center',
+              headerTitle: () => (
+                <Text style={{
+                  fontFamily: 'LatoBold',
+                  fontSize: 18,
+                  color: colors.primaryText,
+                  textAlign: 'center',
+                  width: '100%',
+                }}>
+                  {user?.name ? `Hej ${user.name}!` : ''}
+                </Text>
               ),
             }}
           />

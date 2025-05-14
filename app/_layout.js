@@ -1,15 +1,18 @@
+import '@/services/i18n';
 import { Slot } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { ActivityIndicator, View } from 'react-native';
 import { ThemeProvider } from '@/ThemeContext';
 import { LanguageProvider } from '@/LanguageContext';
-import '@/services/i18n';
+import { UserProvider } from '@/contexts/UserContext';
+import { Platform } from 'react-native';
 
-export default function Layout() {
+
+export default function AppLayout() {
   const [fontsLoaded] = useFonts({
     Lato: require('../assets/fonts/Lato-Regular.ttf'),
-    'Lato-Bold': require('../assets/fonts/Lato-Bold.ttf'),
-    'LatoItalic': require('../assets/fonts/Lato-Italic.ttf'),
+    LatoBold: require('../assets/fonts/Lato-Bold.ttf'),
+    LatoItalic: require('../assets/fonts/Lato-Italic.ttf'),
   });
 
   if (!fontsLoaded) {
@@ -23,7 +26,9 @@ export default function Layout() {
   return (
     <ThemeProvider>
       <LanguageProvider>
-        <Slot />
+        <UserProvider>
+          <Slot />
+        </UserProvider>
       </LanguageProvider>
     </ThemeProvider>
   );

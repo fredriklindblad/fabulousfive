@@ -1,5 +1,3 @@
-import { determineNextResponse } from "expo-notifications/build/useLastNotificationResponse";
-
 export default {
     login: "Logga in",
     logout: "Logga ut",

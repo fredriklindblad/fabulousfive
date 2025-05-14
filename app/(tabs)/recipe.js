@@ -4,6 +4,7 @@ import { getRecipes } from '@/services/firebase';
 import RecipeCard from '@/components/RecipeCard';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
+import { getAuth } from 'firebase/auth';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = screenWidth * 0.7;
@@ -12,10 +13,21 @@ export default function RecipeScreen() {
   const [groupedRecipes, setGroupedRecipes] = useState({});
   const { t } = useTranslation();
   const { styles, colors } = useGlobalStyles();
+  const [user, setUser] = useState(null);
 
   const categories = ['frukost', 'lunch', 'middag', 'snacks'];
 
   useEffect(() => {
+    const auth = getAuth();
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+      console.log('⛔️ Inte inloggad – recept laddas inte');
+      return;
+    }
+
+    setUser(currentUser);
+
     getRecipes().then((allRecipes) => {
       const groups = {
         frukost: [],
@@ -37,6 +49,7 @@ export default function RecipeScreen() {
       setGroupedRecipes(groups);
     });
   }, []);
+
 
   const renderCategory = (categoryKey) => {
     const data = groupedRecipes[categoryKey];
@@ -76,12 +89,19 @@ export default function RecipeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <FlatList
-        data={categories}
-        keyExtractor={(item) => item}
-        contentContainerStyle={{ paddingBottom: 64 }}
-        renderItem={({ item }) => renderCategory(item)}
-      />
+      {user ? (
+        <FlatList
+          data={categories}
+          keyExtractor={(item) => item}
+          contentContainerStyle={{ paddingBottom: 64 }}
+          renderItem={({ item }) => renderCategory(item)}
+        />
+      ) : (
+        <View style={{ padding: 24 }}>
+          <Text style={styles.text}>Du behöver vara inloggad för att se recepten.</Text>
+        </View>
+      )}
     </View>
-  );
+);
+
 }

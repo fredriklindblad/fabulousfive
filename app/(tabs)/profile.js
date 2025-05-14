@@ -1,4 +1,3 @@
-// app/(tabs)/profile.js
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -9,8 +8,11 @@ import {
   TextInput,
   ScrollView,
   Switch,
+  Pressable,
+  Animated,
+  Linking,
+  Dimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import { useLanguageContext } from '@/LanguageContext';
 import { useRouter } from 'expo-router';
@@ -18,30 +20,62 @@ import { signOutUser } from '@/services/auth';
 import { useGlobalStyles } from '@/globalStyles';
 import { useThemeContext } from '@/ThemeContext';
 import { Ionicons } from '@expo/vector-icons';
+import { saveItem, getItem } from '@/services/storage';
+import { saveUserProfile } from '@/services/firebase';
+import { useUser } from '@/contexts/UserContext';
+import { PanResponder } from 'react-native';
 
 const ALL_INTERESTS = ['Träning', 'Kost', 'Stillhet', 'Sömn', 'Socialt'];
 
 export default function ProfileScreen() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { changeLanguage, language } = useLanguageContext();
   const router = useRouter();
+  const { styles: global, colors } = useGlobalStyles();
+  const { theme, setTheme } = useThemeContext();
+  const user = useUser();
+
   const [name, setName] = useState('');
+  const [birthyear, setBirthyear] = useState('');
   const [interests, setInterests] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState('');
+  const [editedBirthyear, setEditedBirthyear] = useState('');
   const [editedInterests, setEditedInterests] = useState([]);
 
-  const { styles: global, colors } = useGlobalStyles();
-  const { theme, setTheme } = useThemeContext();
+  const [settingsVisible, setSettingsVisible] = useState(false);
+  const settingsAnim = useState(new Animated.Value(Dimensions.get('window').width))[0];
+
+  const panResponder = PanResponder.create({
+  onMoveShouldSetPanResponder: (_, gestureState) => {
+    return gestureState.dx > 10;
+  },
+  onPanResponderMove: (_, gestureState) => {
+    if (gestureState.dx > 30) {
+      toggleSettings();
+    }
+  },
+});
 
   useEffect(() => {
     const loadData = async () => {
-      const storedName = await AsyncStorage.getItem('name');
-      const storedInterests = await AsyncStorage.getItem('interests');
+      const storedName = await getItem('name');
+      const storedInterests = await getItem('interests');
+      const storedBirthyear = await getItem('birthyear');
+
       setName(storedName || '');
-      setInterests(storedInterests ? JSON.parse(storedInterests) : []);
+      setBirthyear(storedBirthyear || '');
+      try {
+        const parsed = storedInterests ? JSON.parse(storedInterests) : [];
+        setInterests(parsed);
+        setEditedInterests(parsed);
+      } catch {
+        setInterests([]);
+        setEditedInterests([]);
+      }
+
       setEditedName(storedName || '');
-      setEditedInterests(storedInterests ? JSON.parse(storedInterests) : []);
+      setEditedBirthyear(storedBirthyear || '');
     };
     loadData();
   }, []);
@@ -55,116 +89,206 @@ export default function ProfileScreen() {
   };
 
   const handleSave = async () => {
-    await AsyncStorage.setItem('name', editedName);
-    await AsyncStorage.setItem('interests', JSON.stringify(editedInterests));
-    setName(editedName);
-    setInterests(editedInterests);
-    setIsEditing(false);
+    try {
+      await saveItem('name', editedName);
+      await saveItem('interests', JSON.stringify(editedInterests));
+      await saveItem('birthyear', editedBirthyear);
+
+      await saveUserProfile({
+        name: editedName,
+        interests: editedInterests,
+        birthyear: editedBirthyear,
+      });
+
+      setName(editedName);
+      setInterests(editedInterests);
+      setBirthyear(editedBirthyear);
+      setIsEditing(false);
+    } catch (err) {
+      Alert.alert('Fel', 'Kunde inte spara profiluppgifter.');
+    }
   };
 
   const handleLogout = async () => {
     try {
       await signOutUser();
-      await AsyncStorage.removeItem('onboardingDone');
       router.replace('/(auth)/login');
     } catch (err) {
       Alert.alert(t('logout_failed', 'Utloggning misslyckades'), err.message);
     }
   };
 
+  const toggleSettings = () => {
+    if (settingsVisible) {
+      Animated.timing(settingsAnim, {
+        toValue: Dimensions.get('window').width,
+        duration: 300,
+        useNativeDriver: false,
+      }).start(() => setSettingsVisible(false));
+    } else {
+      setSettingsVisible(true);
+      Animated.timing(settingsAnim, {
+        toValue: Dimensions.get('window').width / 2,
+        duration: 300,
+        useNativeDriver: false,
+      }).start();
+    }
+  };
+
   return (
-    <ScrollView
-      style={{ flex: 1, backgroundColor: colors.background }}
-      contentContainerStyle={local.container}
-    >
-      <Ionicons name="flower-outline" size={120} color={colors.primaryText} style={local.icon} />
+    <View style={{ flex: 1 }}>
+      <ScrollView
+        style={{ flex: 1, backgroundColor: colors.background }}
+        contentContainerStyle={local.container}
+      >
+        <Ionicons name="flower-outline" size={120} color={colors.primaryText} style={local.icon} />
 
-      <Text style={[local.name, { color: colors.primaryText }]}> {name || 'Ditt namn'} </Text>
+        <Text style={[local.name, { color: colors.primaryText }]}>
+          {user?.name || name || 'Ditt namn'}
+        </Text>
 
-      {!isEditing ? (
-        <>
-          <Text style={[local.subtext, { color: colors.secondaryText }]}>Dina fokusområden:</Text>
-          <View style={local.interests}>
-            {interests.length > 0 ? (
-              interests.map((interest) => (
-                <View key={interest} style={[local.tag, { backgroundColor: colors.cardBackground }]}>
-                  <Text style={[local.tagText, { color: colors.primaryText }]}>{interest}</Text>
-                </View>
-              ))
-            ) : (
-              <Text style={[local.subtext, { fontStyle: 'italic', color: colors.secondaryText }]}>Du har inte valt några fokusområden än.</Text>
-            )}
-          </View>
-        </>
-      ) : (
-        <>
-          <TextInput
-            value={editedName}
-            onChangeText={setEditedName}
-            placeholder="Ditt namn"
-            placeholderTextColor="#888"
-            style={[local.input, { color: colors.primaryText }]}
-          />
-          <Text style={[local.subtext, { color: colors.secondaryText }]}>Välj dina fokusområden:</Text>
-          <View style={local.interests}>
-            {ALL_INTERESTS.map((interest) => (
-              <TouchableOpacity
-                key={interest}
-                onPress={() => toggleInterest(interest)}
-                style={[local.interestButton, editedInterests.includes(interest) && { backgroundColor: colors.cardBackground }]}
-              >
-                <Text
-                  style={[local.interestText, editedInterests.includes(interest) && { fontWeight: 'bold', color: colors.primaryText }]}
-                >
-                  {interest}
+        <Pressable onPress={toggleSettings} style={{ position: 'absolute', top: 40, right: 20 }}>
+          <Ionicons name="settings-outline" size={28} color={colors.primaryText} />
+        </Pressable>
+
+        {!isEditing ? (
+          <>
+            <Text style={[local.subtext, { color: colors.secondaryText }]}>Födelseår:</Text>
+            <Text style={[local.textValue, { color: colors.primaryText }]}>
+              {birthyear || 'Ej angivet'}
+            </Text>
+
+            <Text style={[local.subtext, { color: colors.secondaryText }]}>Dina fokusområden:</Text>
+            <View style={local.interests}>
+              {interests.length > 0 ? (
+                interests.map((interest) => (
+                  <View key={interest} style={[local.tag, { backgroundColor: colors.cardBackground }]}>
+                    <Text style={[local.tagText, { color: colors.primaryText }]}>{interest}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={[local.subtext, { fontStyle: 'italic', color: colors.secondaryText }]}>
+                  Du har inte valt några fokusområden än.
                 </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </>
-      )}
+              )}
+            </View>
+          </>
+        ) : (
+          <>
+            <TextInput
+              value={editedName}
+              onChangeText={setEditedName}
+              placeholder="Ditt namn"
+              placeholderTextColor="#888"
+              style={[local.input, { color: colors.primaryText }]}
+            />
+            <TextInput
+              value={editedBirthyear}
+              onChangeText={setEditedBirthyear}
+              placeholder="Födelseår"
+              keyboardType="numeric"
+              placeholderTextColor="#888"
+              style={[local.input, { color: colors.primaryText }]}
+            />
+            <Text style={[local.subtext, { color: colors.secondaryText }]}>Välj dina fokusområden:</Text>
+            <View style={local.interests}>
+              {ALL_INTERESTS.map((interest) => (
+                <TouchableOpacity
+                  key={interest}
+                  onPress={() => toggleInterest(interest)}
+                  style={[
+                    local.interestButton,
+                    editedInterests.includes(interest) && { backgroundColor: colors.cardBackground },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      local.interestText,
+                      editedInterests.includes(interest) && { fontWeight: 'bold', color: colors.primaryText },
+                    ]}
+                  >
+                    {interest}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
 
-      <View style={local.actions}>
         <TouchableOpacity
           style={[local.button, { backgroundColor: '#DBBEC0' }]}
           onPress={isEditing ? handleSave : () => setIsEditing(true)}
         >
-        <Text style={local.buttonText}>
-          {isEditing ? t('save_changes', 'Spara ändringar') : t('edit_profile', 'Redigera profil')}
-        </Text>
+          <Text style={local.buttonText}>
+            {isEditing ? 'Spara ändringar' : 'Redigera profil'}
+          </Text>
         </TouchableOpacity>
+      </ScrollView>
 
-        <View style={[global.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-          <Text style={global.cardText}>🌙 Mörkt läge</Text>
-          <Switch
-            value={theme === 'dark'}
-            onValueChange={(value) => setTheme(value ? 'dark' : 'light')}
-            thumbColor={theme === 'dark' ? '#fff' : '#888'}
-            trackColor={{ false: '#ccc', true: colors.primaryText }}
-          />
-        </View>
-
-        <View style={[global.card, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }]}>
-          <Text style={global.cardText}>{language === 'sv' ? '🇸🇪 Svenska' : '🇺🇸 English'}</Text>
-          <Switch
-            value={language === 'en'}
-            onValueChange={(value) => {
-              const newLang = value ? 'en' : 'sv';
-              changeLanguage(newLang);
+      {settingsVisible && (
+        <>
+          <Pressable
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'rgba(0,0,0,0.3)',
+              zIndex: 98,
             }}
-            thumbColor={language === 'en' ? '#fff' : '#888'}
-            trackColor={{ false: '#ccc', true: colors.primaryText }}
+            onPress={toggleSettings}
           />
-        </View>
+          <Animated.View
+            {...panResponder.panHandlers}
+            style={[local.settingsPanel, { left: settingsAnim, backgroundColor: colors.cardBackground }]}>
+            <Text style={[local.settingsTitle, { color: colors.primaryText }]}>Inställningar</Text>
 
-        <TouchableOpacity
-          style={[local.button, { backgroundColor: '#DBBEC0' }]}
-          onPress={handleLogout}
-        >
-          <Text style={local.buttonText}>{t('logout', 'Logga ut')}</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+            <View style={local.settingsRow}>
+              <Text style={[local.settingsText, { color: colors.primaryText }]}>🌙 Mörkt läge</Text>
+              <Switch
+                value={theme === 'dark'}
+                onValueChange={(value) => setTheme(value ? 'dark' : 'light')}
+                thumbColor={theme === 'dark' ? '#fff' : '#888'}
+                trackColor={{ false: '#ccc', true: '#5D3E17' }}
+              />
+            </View>
+
+            <View style={local.settingsRow}>
+              <Text style={[local.settingsText, { color: colors.primaryText }]}>
+                {language === 'sv' ? '🇸🇪 Svenska' : '🇺🇸 English'}
+              </Text>
+              <Switch
+                value={language === 'en'}
+                onValueChange={(value) => {
+                  const newLang = value ? 'en' : 'sv';
+                  changeLanguage(newLang);
+                }}
+                thumbColor={language === 'en' ? '#fff' : '#888'}
+                trackColor={{ false: '#ccc', true: '#5D3E17' }}
+              />
+            </View>
+
+            <TouchableOpacity
+              onPress={() => Linking.openURL('mailto:support@fabulousfive.se')}
+              style={local.settingsRow}
+            >
+              <Ionicons name="mail-outline" size={20} color={colors.primaryText} />
+              <Text style={[local.settingsText, { marginLeft: 10, color: colors.primaryText }]}>Kontakta oss</Text>
+            </TouchableOpacity>
+
+            <View style={{ flex: 1 }} />
+
+            <TouchableOpacity
+              style={[local.button, { backgroundColor: '#DBBEC0', marginBottom: 20 }]}
+              onPress={handleLogout}
+            >
+              <Text style={local.buttonText}>{t('logout', 'Logga ut')}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </>
+      )}
+    </View>
   );
 }
 
@@ -188,7 +312,13 @@ const local = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'Lato',
     textAlign: 'center',
-    marginBottom: 32,
+    marginTop: 16,
+    marginBottom: 4,
+  },
+  textValue: {
+    fontSize: 16,
+    fontFamily: 'Lato',
+    marginBottom: 12,
   },
   input: {
     width: '100%',
@@ -217,16 +347,11 @@ const local = StyleSheet.create({
     fontFamily: 'Lato',
     color: '#555',
   },
-  actions: {
-    width: '100%',
-    gap: 12,
-  },
   button: {
     paddingVertical: 14,
     paddingHorizontal: 24,
     borderRadius: 30,
     alignItems: 'center',
-    marginBottom: 8,
     elevation: 2,
   },
   buttonText: {
@@ -244,5 +369,30 @@ const local = StyleSheet.create({
   tagText: {
     fontFamily: 'Lato',
     fontSize: 14,
+  },
+  settingsPanel: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    width: '50%',
+    padding: 20,
+    borderLeftWidth: 1,
+    borderColor: '#ccc',
+    zIndex: 99,
+  },
+  settingsTitle: {
+    fontSize: 20,
+    fontFamily: 'LatoBold',
+    marginBottom: 24,
+  },
+  settingsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  settingsText: {
+    fontSize: 16,
+    fontFamily: 'Lato',
   },
 });

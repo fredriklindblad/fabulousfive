@@ -7,12 +7,13 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { saveItem } from '@/services/storage';
 import { useLanguageContext } from '@/LanguageContext';
 import { useThemeContext } from '@/ThemeContext';
 import { useGlobalStyles } from '@/globalStyles';
 import { useRouter } from 'expo-router';
 import { saveUserProfile } from '@/services/firebase';
+import { Picker } from '@react-native-picker/picker';
 
 const INTERESTS = ['Träning', 'Kost', 'Stillhet', 'Sömn', 'Socialt'];
 
@@ -21,6 +22,9 @@ export default function OnboardingScreen() {
   const [lang, setLang] = useState('sv');
   const [interests, setInterests] = useState([]);
   const [theme, setThemeState] = useState('light');
+  const [birthyear, setBirthyear] = useState('');
+  const YEARS = Array.from({ length: 2025 - 1900 + 1 }, (_, i) => (1900 + i).toString());
+
 
   const { changeLanguage } = useLanguageContext();
   const { setTheme } = useThemeContext();
@@ -36,12 +40,12 @@ export default function OnboardingScreen() {
   };
 
   const saveSettings = async () => {
-    await AsyncStorage.multiRemove(['name', 'interests', 'theme', 'lang', 'onboardingDone']);
-    await AsyncStorage.setItem('onboardingDone', 'true');
-    await AsyncStorage.setItem('name', name);
-    await AsyncStorage.setItem('interests', JSON.stringify(interests));
-    await AsyncStorage.setItem('theme', theme);
-    await AsyncStorage.setItem('lang', lang);
+    await saveItem('onboardingDone', 'true');
+    await saveItem('name', name);
+    await saveItem('interests', JSON.stringify(interests));
+    await saveItem('theme', theme);
+    await saveItem('lang', lang);
+    await saveItem('birthyear', birthyear);
     await changeLanguage(lang);
     await setTheme(theme);
     await saveUserProfile({
@@ -49,6 +53,7 @@ export default function OnboardingScreen() {
       interests,
       lang,
       theme,
+      birthyear,
     });
     router.replace('/auth/login');
   };
@@ -67,7 +72,20 @@ export default function OnboardingScreen() {
         placeholderTextColor="#888"
         style={[local.input, { color: colors.primaryText }]}
       />
-
+      <Text style={[local.label, { color: colors.secondaryText }]}>Födelseår</Text>
+      <View style={[local.input, { padding: 0 }]}>
+        <Picker
+          selectedValue={birthyear}
+          onValueChange={(itemValue) => setBirthyear(itemValue)}
+          style={{ height: 48, color: colors.primaryText }}
+          dropdownIconColor={colors.primaryText}
+        >
+          <Picker.Item label="Välj år" value="" />
+          {YEARS.map((year) => (
+            <Picker.Item key={year} label={year} value={year} />
+          ))}
+        </Picker>
+      </View>
       <Text style={[local.label, { color: colors.secondaryText }]}>Välj dina fokusområden</Text>
       <View style={local.interestContainer}>
         {INTERESTS.map((interest) => (

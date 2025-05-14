@@ -1,19 +1,30 @@
 import { Redirect } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useEffect, useState } from 'react';
+import { onAuthStateChanged, getAuth } from 'firebase/auth';
+import { getItem } from '@/services/storage';
 
 export default function IndexRedirect() {
-  const [hasOnboarded, setHasOnboarded] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [onboarded, setOnboarded] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem('onboardingDone').then((value) => {
-      setHasOnboarded(value === 'true');
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+    });
+
+    getItem('onboardingDone').then((value) => {
+      setOnboarded(value === 'true');
       setLoading(false);
     });
+
+    return () => unsubscribe();
   }, []);
 
   if (loading) return null;
 
-  return <Redirect href={hasOnboarded ? '/(auth)' : '/onboarding'} />;
+  if (!user) return <Redirect href="/(auth)" />;
+  if (!onboarded) return <Redirect href="/(auth)/onboarding" />;
+  return <Redirect href="/(tabs)/feed" />;
 }
