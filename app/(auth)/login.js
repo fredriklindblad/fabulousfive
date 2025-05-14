@@ -28,7 +28,7 @@ export default function LoginScreen() {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        router.replace('/(tabs)/feed');
+        router.replace('/(tabs)/calm');
       }
     });
     return unsubscribe;
@@ -38,7 +38,7 @@ export default function LoginScreen() {
 const handleLogin = async () => {
   try {
     await loginUser(email.trim(), password);
-    router.replace('/(tabs)/feed');
+    router.replace('/(tabs)/calm');
   } catch (error) {
     console.log('❌ Login error:', error.code);
     let message = '';

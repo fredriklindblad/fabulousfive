@@ -12,7 +12,7 @@ export default function WelcomeScreen() {
   return (
     <View style={[local.container, { backgroundColor: colors.background }]}>
       <Text style={[local.title, { color: colors.primaryText }]}>
-        {t('welcome_title', 'Välkommen till Fabulous Five!')}
+        {t('welcome_title', 'Välkommen till Fab Five!')}
       </Text>
 
       <TouchableOpacity

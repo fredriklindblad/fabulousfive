@@ -6,13 +6,15 @@ export function useGlobalStyles() {
   const isDark = theme === 'dark';
 
   const colors = {
-    background: isDark ? '#1E1E1E' : '#F9F8F6',
-    primaryText: isDark ? '#DAC9B9' : '#5D3E17',
-    secondaryText: isDark ? '#C2B0A0' : '#967F71',
-    cardBackground: isDark ? '#2C2C2C' : '#F1DFDF',
-    buttonBackground: isDark ? '#3A302B' : '#F1DFDF',
-    buttonText: isDark ? '#F1DFDF' : '#5D3E17',
+    background: isDark ? '#1E1E1E' : '#FFFFFF',              // Huvudbakgrund svart/vit
+    primaryText: isDark ? '#E6E6E6' : '#5D3E17',              // Brun text
+    secondaryText: isDark ? '#B0A49A' : '#967F71',            // Mjuk brungrå text
+    cardBackground: isDark ? '#2C2C2C' : '#FFFFFF',           // Kort = vit i ljusläge
+    buttonBackground: isDark ? '#3A302B' : '#5D3E17',         // Alltid brun knapp
+    buttonText: isDark ? '#FFFFFF' : '#FFFFFF',              // Vit text på knappar
+    border: isDark ? '#E6E6E6' : '#5D3E17',                   // Brun border
   };
+
 
   const styles = StyleSheet.create({
     container: {

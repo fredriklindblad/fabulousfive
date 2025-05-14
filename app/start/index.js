@@ -1,4 +1,3 @@
-// app/start/index.js
 import { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import { Platform } from 'react-native';
@@ -11,7 +10,7 @@ export default function StartScreen() {
   useEffect(() => {
     const checkStatus = async () => {
       if (Platform.OS === 'web') {
-        setInitialRoute('/(tabs)/feed');
+        setInitialRoute('/start/welcome');
         return;
       }
 
@@ -19,12 +18,12 @@ export default function StartScreen() {
       const auth = getAuth();
 
       onAuthStateChanged(auth, (user) => {
-        if (!onboardingDone) {
+        if (user && onboardingDone === 'true') {
+          setInitialRoute('/(tabs)/calm');
+        } else if (user && onboardingDone !== 'true') {
           setInitialRoute('/onboarding');
-        } else if (user) {
-          setInitialRoute('/(tabs)/feed');
         } else {
-          setInitialRoute('/(auth)/login');
+          setInitialRoute('/start/welcome');
         }
       });
     };

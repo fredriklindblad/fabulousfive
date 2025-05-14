@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useLanguageContext } from '@/LanguageContext';
-import { useRouter } from 'expo-router';
+import { useRouter, useNavigation } from 'expo-router';
 import { signOutUser } from '@/services/auth';
 import { useGlobalStyles } from '@/globalStyles';
 import { useThemeContext } from '@/ThemeContext';
@@ -27,6 +27,12 @@ import { PanResponder } from 'react-native';
 
 const ALL_INTERESTS = ['Träning', 'Kost', 'Stillhet', 'Sömn', 'Socialt'];
 
+export const unstable_settings = {
+  headerShown: true,
+  headerTitleAlign: 'center',
+};
+
+
 export default function ProfileScreen() {
   const { t } = useTranslation();
   const { changeLanguage, language } = useLanguageContext();
@@ -34,6 +40,7 @@ export default function ProfileScreen() {
   const { styles: global, colors } = useGlobalStyles();
   const { theme, setTheme } = useThemeContext();
   const user = useUser();
+  const navigation = useNavigation();
 
   const [name, setName] = useState('');
   const [birthyear, setBirthyear] = useState('');
@@ -87,6 +94,23 @@ export default function ProfileScreen() {
         : [...prev, interest]
     );
   };
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <Text style={{
+          fontFamily: 'LatoBold',
+          fontSize: 18,
+          color: colors.primaryText,
+          textAlign: 'center',
+          width: '100%',
+        }}>
+          {user?.name ? `Hej ${user.name}!` : ''}
+        </Text>
+      ),
+      headerTitleAlign: 'center',
+    });
+  }, [user]);
 
   const handleSave = async () => {
     try {
@@ -245,7 +269,7 @@ export default function ProfileScreen() {
             <Text style={[local.settingsTitle, { color: colors.primaryText }]}>Inställningar</Text>
 
             <View style={local.settingsRow}>
-              <Text style={[local.settingsText, { color: colors.primaryText }]}>🌙 Mörkt läge</Text>
+              <Text style={[local.settingsText, { color: colors.primaryText }]}>☀️🌙Light/Dark</Text>
               <Switch
                 value={theme === 'dark'}
                 onValueChange={(value) => setTheme(value ? 'dark' : 'light')}
@@ -274,7 +298,7 @@ export default function ProfileScreen() {
               style={local.settingsRow}
             >
               <Ionicons name="mail-outline" size={20} color={colors.primaryText} />
-              <Text style={[local.settingsText, { marginLeft: 10, color: colors.primaryText }]}>Kontakta oss</Text>
+              <Text style={[local.settingsText, { marginLeft: 10, color: colors.primaryText }]}>info@fabulousfive.se</Text>
             </TouchableOpacity>
 
             <View style={{ flex: 1 }} />

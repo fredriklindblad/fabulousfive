@@ -1,3 +1,5 @@
+import { removeNotificationSubscription } from "expo-notifications";
+
 export default {
     login: "Login",
     logout: "Logout",
@@ -39,7 +41,7 @@ export default {
     no_feed_items: "No feed items available.",
     no_goals: "No goals set yet.",
     no_recipes: "No recipes available.",
-    calm: "Calm",
+    peace: "Peace",
     dinner: "Dinner",
     forgot_password: "Forgot password?",
     password_reset_sent: "Password reset link sent",
@@ -49,5 +51,10 @@ export default {
     check_spam: "Tip: Check your spam folder if you don’t see the email right away.",
     auto_redirect: "You’ll be redirected to login in 10 seconds...",
     edit_profile: "Edit Profile",
+    philosophy: "Our Philosophy",
+    settings: "Settings",
+    nutrition: "Nutrition",
+    move: "Move",
+    happiness: "Happiness",
   };
   

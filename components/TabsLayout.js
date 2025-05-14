@@ -42,9 +42,9 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="feed"
+        name="move"
         options={{
-          title: t('feed', 'Flöde'),
+          title: t('move', 'Rörelse'),
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="sparkles-outline" size={size} color={color} />
           ),

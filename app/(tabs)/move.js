@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList } from 'react-native';
-import { getFeed } from '@/services/firebase';
-import FeedItem from '@/components/FeedItem';
+import { getMove } from '@/services/firebase';
+import MoveItem from '@/components/MoveItem';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny
 
-console.log('📥 Rendering FeedScreen');
+console.log('📥 Rendering MoveScreen');
 
-export default function FeedScreen() {
-  const [feed, setFeed] = useState([]);
+export default function MoveScreen() {
+  const [move, setMove] = useState([]);
   const { t } = useTranslation();
   const { styles, colors } = useGlobalStyles(); // ⬅️ hook
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await getFeed();
-        console.log('✅ Feed data:', data);
-        setFeed(data);
+        const data = await getMove();
+        console.log('✅ Move data:', data);
+        setMove(data);
       } catch (err) {
-        console.error('❌ Feed error:', err);
+        console.error('❌ Move error:', err);
       }
     };
     fetchData();
@@ -32,7 +32,7 @@ export default function FeedScreen() {
           padding: 24,
           paddingBottom: 64,
         }}
-        data={feed}
+        data={move}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
           <Text style={[styles.header, { marginBottom: 16 }]}>
@@ -40,11 +40,11 @@ export default function FeedScreen() {
           </Text>
         }
         renderItem={({ item }) => (
-          <FeedItem title={item.title} description={item.description} />
+          <MoveItem title={item.title} description={item.description} />
         )}
         ListEmptyComponent={
           <Text style={styles.text}>
-            {t('no_feed_items', 'Inget att visa ännu.')}
+            {t('no_move_items', 'Inget att visa ännu.')}
           </Text>
         }
       />

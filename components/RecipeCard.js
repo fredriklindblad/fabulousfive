@@ -13,14 +13,28 @@ export default function RecipeCard({ id, title, description, image, thumbnail })
 
   return (
     <Pressable onPress={handlePress}>
-      <View style={styles.card}>
+      <View
+        style={{
+          backgroundColor: colors.cardBackground,
+          borderColor: colors.border,
+          borderWidth: 1,
+          borderRadius: 20,
+          padding: 16,
+          marginBottom: 20,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.05,
+          shadowRadius: 6,
+          elevation: 3, // för Android
+        }}
+      >
         {thumbnail && (
           <Image
             source={{ uri: thumbnail }}
             style={{
               width: '100%',
               height: 150,
-              borderRadius: 8,
+              borderRadius: 12,
               marginBottom: 10,
             }}
           />

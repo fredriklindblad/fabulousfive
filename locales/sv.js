@@ -39,7 +39,7 @@ export default {
     no_feed_items: "Inget att visa ännu.",
     no_goals: "Inga mål satta ännu.",
     no_recipes: "Inga recept tillgängliga.",
-    calm: "Stillhet",
+    peace: "Stillhet",
     dinner: "Middag",
     forgot_password: "Glömt lösenord?",
     password_reset_sent: "Lösenordsåterställning skickad",
@@ -49,4 +49,9 @@ export default {
     check_spam: "Tips: Kolla även skräpposten om du inte ser mejlet direkt.",
     auto_redirect: "Du skickas tillbaka till inloggningen om 10 sekunder...",
     edit_profile: "Redigera profil",
+    philosophy: "Vår filosofi",
+    settings: "Inställningar",
+    nutritition: "Näring",
+    move: "Rörelse",
+    happiness: "Lycka",
   };

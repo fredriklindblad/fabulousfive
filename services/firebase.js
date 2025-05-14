@@ -55,8 +55,8 @@ const db = getFirestore(app);
 const storage = getStorage(app);
 
 // 🔎 Queries
-export const getFeed = async () => {
-  const snapshot = await getDocs(collection(db, 'feed'));
+export const getMove = async () => {
+  const snapshot = await getDocs(collection(db, 'move'));
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
