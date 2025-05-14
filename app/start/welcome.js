@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
@@ -14,20 +14,38 @@ export default function WelcomeScreen() {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* 🔁 Videobakgrund */}
-    <Video
-    source={require('../../assets/start-background.mp4')}
-    rate={1.0}
-    volume={0.0}
-    isMuted
-    resizeMode="cover"
-    shouldPlay
-    isLooping
-    style={[StyleSheet.absoluteFill, { top: -100 }]} // flytta uppåt = visa mer nedtill
-    />
+      {/* 🎬 Video för mobil */}
+      {Platform.OS !== 'web' ? (
+        <Video
+          source={require('../../assets/start-background.mp4')}
+          rate={1.0}
+          volume={0.0}
+          isMuted
+          resizeMode="cover"
+          shouldPlay
+          isLooping
+          style={[StyleSheet.absoluteFill, { top: -60 }]} // flytta uppåt för att visa nedre delen
+        />
+      ) : (
+        // 🎬 Video för webben (inkl. Safari på iOS)
+        <video
+          src="/start-background.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            top: '-60px', // motsvarar `top: -60` i RN
+          }}
+        />
+      )}
 
-      {/* 🔲 Overlay-innehåll */}
-      <View style={[local.overlay]}>
+      {/* 🔲 Text & knappar ovanpå */}
+      <View style={local.overlay}>
         <Text style={[local.title, { color: colors.primaryText }]}>
           {t('welcome_title', 'Välkommen till Fabulous Five!')}
         </Text>
@@ -72,9 +90,9 @@ const local = StyleSheet.create({
     marginBottom: 16,
   },
   buttonText: {
+    color: '#fff',
     fontSize: 16,
     fontFamily: 'Lato',
     fontWeight: '600',
-    color: '#fff',
   },
 });
