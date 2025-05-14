@@ -13,7 +13,7 @@ export default function WelcomeScreen() {
   const { styles: global, colors } = useGlobalStyles();
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, overflow: 'hidden' }}>
       {/* 🎬 Video för mobil */}
       {Platform.OS !== 'web' ? (
         <Video
@@ -24,10 +24,9 @@ export default function WelcomeScreen() {
           resizeMode="cover"
           shouldPlay
           isLooping
-          style={[StyleSheet.absoluteFill, { top: -60 }]} // flytta uppåt för att visa nedre delen
+          style={[StyleSheet.absoluteFill]} // flytta uppåt för att visa nedre delen
         />
       ) : (
-        // 🎬 Video för webben (inkl. Safari på iOS)
         <video
           src="/start-background.mp4"
           autoPlay
@@ -35,11 +34,18 @@ export default function WelcomeScreen() {
           loop
           playsInline
           style={{
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
+            position: 'fixed', // viktig: täcker hela viewporten
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
             objectFit: 'cover',
-            top: '-60px', // motsvarar `top: -60` i RN
+            border: 'none',
+            margin: 0,
+            padding: 0,
+            zIndex: -1, // bakom alla andra element
+            display: 'block',
+            overflow: 'hidden',
           }}
         />
       )}
@@ -75,6 +81,8 @@ const local = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     padding: 24,
+    position: 'relative', // säkerställer att det ligger ovanpå video
+    zIndex: 1,
   },
   title: {
     fontSize: 28,
