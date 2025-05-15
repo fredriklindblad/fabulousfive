@@ -13,7 +13,10 @@ import { registerUser } from '@/services/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny hook
+import { useGlobalStyles } from '@/globalStyles';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function RegisterScreen() {
   const [email, setEmail] = useState('');
@@ -21,7 +24,7 @@ export default function RegisterScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const { t } = useTranslation();
   const router = useRouter();
-  const { styles: global, colors } = useGlobalStyles(); // ⬅️ dark/light
+  const { styles: global, colors } = useGlobalStyles();
 
   const handleRegister = async () => {
     if (password.length < 6) {
@@ -42,9 +45,18 @@ export default function RegisterScreen() {
 
     try {
       await registerUser(email.trim(), password);
-      router.replace('/(auth)/onboarding');
+
+      // ✅ 1. Markera att onboarding inte är klar
+      await AsyncStorage.setItem('onboardingDone', 'false');
+
+      // ✅ 2. Gå direkt till onboarding utan att vänta på onAuthStateChanged
+      router.replace('/onboarding');
+
     } catch (error) {
-      Alert.alert(t('registration_failed', 'Registrering misslyckades'), error.message);
+      Alert.alert(
+        t('registration_failed', 'Registrering misslyckades'),
+        error.message
+      );
     }
   };
 
@@ -53,9 +65,10 @@ export default function RegisterScreen() {
       style={[local.container, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <TouchableOpacity onPress={() => router.replace('/(auth)')}>
+      <TouchableOpacity onPress={() => router.replace('/start/welcome')}>
         <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
       </TouchableOpacity>
+
       <Text style={[local.title, { color: colors.primaryText }]}>
         {t('register', 'Skapa konto')}
       </Text>
@@ -86,7 +99,10 @@ export default function RegisterScreen() {
         style={[local.input, { color: colors.primaryText }]}
       />
 
-      <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handleRegister}>
+      <TouchableOpacity
+        style={[local.button, { backgroundColor: colors.primaryText }]}
+        onPress={handleRegister}
+      >
         <Text style={local.buttonText}>{t('register', 'Skapa konto')}</Text>
       </TouchableOpacity>
 

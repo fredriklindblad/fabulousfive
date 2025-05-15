@@ -17,7 +17,7 @@ export default function WelcomeScreen() {
       {/* 🎬 Video för mobil */}
       {Platform.OS !== 'web' ? (
         <Video
-          source={require('../../assets/start-background.mp4')}
+          source={require('../../public/start-background.mp4')}
           rate={1.0}
           volume={0.0}
           isMuted

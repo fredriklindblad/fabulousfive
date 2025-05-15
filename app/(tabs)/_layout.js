@@ -7,9 +7,11 @@ import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
 import { useUser } from '@/contexts/UserContext';
+import { useRequireAuth } from '@/hooks/useRequireAuth';
 import '@/services/i18n';
 
 export default function TabsLayout() {
+  useRequireAuth(); // Kolla om användaren är inloggad
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
@@ -82,6 +84,7 @@ export default function TabsLayout() {
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="restaurant-outline" size={size} color={color} />
               ),
+              tabBarItemStyle: { marginRight: 28 },
             }}
           />
           <Tabs.Screen
@@ -91,6 +94,7 @@ export default function TabsLayout() {
               tabBarIcon: ({ color, size }) => (
                 <Ionicons name="body-outline" size={size} color={color} />
               ),
+              tabBarItemStyle: { marginLeft: 28 },
             }}
           />
           <Tabs.Screen
@@ -132,8 +136,8 @@ export default function TabsLayout() {
           <Pressable
             onPress={() => router.push('/ai')}
             style={{
-              width: 80,
-              height: 80,
+              width: 70,
+              height: 70,
               borderRadius: 40, // 50% av storlek för perfekt rund
               backgroundColor: colors.cardBackground,
               justifyContent: 'center',

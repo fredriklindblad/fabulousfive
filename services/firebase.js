@@ -65,17 +65,26 @@ export const getRecipes = async () => {
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-export const saveUserProfile = async (profileData) => {
-  const user = auth.currentUser;
-  if (!user) throw new Error('Ingen användare inloggad');
+export const saveUserProfile = async ({ name, lang, theme, birthyear, interests }) => {
+  const user = getAuth().currentUser;
+  if (!user) return;
 
   const userRef = doc(db, 'users', user.uid);
   await setDoc(userRef, {
-    ...profileData,
     uid: user.uid,
+    name,
     email: user.email,
-    createdAt: new Date().toISOString()
+    lang,
+    theme,
+    birthyear,
+    interests,
+    createdAt: new Date().toISOString(),
   });
+};
+
+export const fetchAllUsers = async () => {
+  const snapshot = await getDocs(collection(db, 'users'));
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 };
 
 export { auth, db, storage };

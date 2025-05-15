@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { ThemeProvider } from '@/ThemeContext';
 import { LanguageProvider } from '@/LanguageContext';
 import { UserProvider } from '@/contexts/UserContext';
+import { ToastProvider } from '@/components/Toast';
 import { Platform } from 'react-native';
 
 
@@ -27,7 +28,9 @@ export default function AppLayout() {
     <ThemeProvider>
       <LanguageProvider>
         <UserProvider>
-          <Slot />
+          <ToastProvider>
+            <Slot />
+          </ToastProvider>
         </UserProvider>
       </LanguageProvider>
     </ThemeProvider>
