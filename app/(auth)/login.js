@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
 } from 'react-native';
 import { loginUser, resetPassword } from '@/services/auth';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +19,7 @@ import { useGlobalStyles } from '@/globalStyles';
 import { useToast } from '@/components/Toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { Video } from 'expo-av';
 
 
 export default function LoginScreen() {
@@ -93,79 +95,118 @@ export default function LoginScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[local.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableOpacity onPress={() => router.replace('/start/welcome')}>
-        <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
-      </TouchableOpacity>
-
-      <Text style={[local.title, { color: colors.primaryText }]}>
-        {t('login', 'Logga in')}
-      </Text>
-
-      {!showReset ? (
-        <>
-          <TextInput
-            placeholder={t('email', 'E-post')}
-            placeholderTextColor="#999"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            style={[local.input, { color: colors.primaryText }]}
-            autoFocus
-          />
-          <TextInput
-            placeholder={t('password', 'Lösenord')}
-            placeholderTextColor="#999"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            style={[local.input, { color: colors.primaryText }]}
-          />
-          <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handleLogin}>
-            <Text style={local.buttonText}>{t('login', 'Logga in')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => setShowReset(true)}>
-            <Text style={[local.link, { color: colors.secondaryText }]}>
-              {t('forgot_password', 'Glömt lösenord?')}
-            </Text>
-          </TouchableOpacity>
-        </>
-      ) : resetSuccess ? (
-        <Text style={[local.label, { color: colors.secondaryText }]}>
-          {t('reset_sent', 'Länk skickad! Kolla din inkorg.')}{'\n'}
-          {t('reset_info', 'Du återgår till inloggning om några sekunder...')}
-        </Text>
+    <View style={{ flex: 1, overflow: 'hidden' }}>
+      {/* 🎬 Video för mobil/web */}
+      {Platform.OS !== 'web' ? (
+        <Video
+          source={require('../../public/start-background.mp4')}
+          rate={1.0}
+          volume={0.0}
+          isMuted
+          resizeMode="cover"
+          shouldPlay
+          isLooping
+          style={[StyleSheet.absoluteFill]}
+        />
       ) : (
-        <>
-          <Text style={[local.label, { color: colors.secondaryText }]}>
-            {t('reset_instruction', 'Ange din e-postadress nedan')}
-          </Text>
-          <TextInput
-            placeholder={t('email', 'E-post')}
-            placeholderTextColor="#999"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-            style={[local.input, { color: colors.primaryText }]}
-          />
-          <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handlePasswordReset}>
-            <Text style={local.buttonText}>{t('reset_password', 'Återställ lösenord')}</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={() => setShowReset(false)}>
-            <Text style={[local.link, { color: colors.secondaryText }]}>
-              {t('back_to_login', 'Tillbaka till inloggning')}
-            </Text>
-          </TouchableOpacity>
-        </>
+        <video
+          src="/start-background.mp4"
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            objectFit: 'cover',
+            border: 'none',
+            margin: 0,
+            padding: 0,
+            zIndex: -1,
+            display: 'block',
+            overflow: 'hidden',
+          }}
+        />
       )}
-    </KeyboardAvoidingView>
+
+      {/* 🔲 Innehåll ovanpå video */}
+      <KeyboardAvoidingView
+        style={local.overlay}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
+        <TouchableOpacity onPress={() => router.replace('/start/welcome')}>
+          <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+        </TouchableOpacity>
+
+        <Text style={[local.title, { color: colors.primaryText }]}>
+          {t('login', 'Logga in')}
+        </Text>
+
+        {!showReset ? (
+          <>
+            <TextInput
+              placeholder={t('email', 'E-post')}
+              placeholderTextColor="#999"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              style={[local.input, { color: colors.primaryText }]}
+              autoFocus
+            />
+            <TextInput
+              placeholder={t('password', 'Lösenord')}
+              placeholderTextColor="#999"
+              secureTextEntry
+              value={password}
+              onChangeText={setPassword}
+              style={[local.input, { color: colors.primaryText }]}
+            />
+            <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handleLogin}>
+              <Text style={local.buttonText}>{t('login', 'Logga in')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowReset(true)}>
+              <Text style={[local.link, { color: colors.secondaryText }]}>
+                {t('forgot_password', 'Glömt lösenord?')}
+              </Text>
+            </TouchableOpacity>
+          </>
+        ) : resetSuccess ? (
+          <Text style={[local.label, { color: colors.secondaryText }]}>
+            {t('reset_sent', 'Länk skickad! Kolla din inkorg.')}{'\n'}
+            {t('reset_info', 'Du återgår till inloggning om några sekunder...')}
+          </Text>
+        ) : (
+          <>
+            <Text style={[local.label, { color: colors.secondaryText }]}>
+              {t('reset_instruction', 'Ange din e-postadress nedan')}
+            </Text>
+            <TextInput
+              placeholder={t('email', 'E-post')}
+              placeholderTextColor="#999"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
+              style={[local.input, { color: colors.primaryText }]}
+            />
+            <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handlePasswordReset}>
+              <Text style={local.buttonText}>{t('reset_password', 'Återställ lösenord')}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => setShowReset(false)}>
+              <Text style={[local.link, { color: colors.secondaryText }]}>
+                {t('back_to_login', 'Tillbaka till inloggning')}
+              </Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
@@ -215,4 +256,12 @@ const local = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
+  overlay: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+    position: 'relative',
+    zIndex: 1,
+  },
+
 });

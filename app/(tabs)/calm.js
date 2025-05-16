@@ -1,31 +1,63 @@
-import React from 'react';
-import { ScrollView, Text, StyleSheet, Image, Pressable, Linking } from 'react-native';
-import { useGlobalStyles } from '@/globalStyles'; // ⬅️ ny hook
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Text, StyleSheet, Pressable, Linking, FlatList, View, Dimensions } from 'react-native';
+import { useGlobalStyles } from '@/globalStyles';
+import PhilosophyCard from '@/components/PhilosophyCard';
+import MeditationCard from '@/components/MeditationCard';
+import { getMeditations } from '@/services/firebase';
+
+const screenWidth = Dimensions.get('window').width;
+const cardWidth = screenWidth * 0.7;
 
 export default function CalmScreen() {
-  const { styles: global, colors } = useGlobalStyles(); // ⬅️ hämta färger & stilar
+  const { styles: global, colors } = useGlobalStyles();
+  const [meditations, setMeditations] = useState([]);
 
   const openInstagram = () => {
     Linking.openURL('https://www.instagram.com/fabulousfive.se');
   };
+
+  useEffect(() => {
+    getMeditations().then((data) => {
+      setMeditations(data);
+    });
+  }, []);
 
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={local.container}
     >
-      <Image
-        source={require('@/assets/calm-illustration.png')}
-        style={local.image}
-        resizeMode="contain"
+      {/* 📖 PhilosophyBox */}
+      <View style={local.philosophyWrapper}>
+        <PhilosophyCard
+          title="Vår filosofi"
+          text="Livets visdom ligger i enkelhet. Investera i din kropp, rensa ditt sinne och återvänd till naturen. - inspirerat av Naval Ravikant & Paul Chek."
+          image="https://source.unsplash.com/300x300/?zen"
+          variant="topRight"
+          modalContent="Vi tror på ett liv i harmoni med naturen, där fysisk rörelse, mental stillhet och medveten kost går hand i hand. Inspirerade av tänkare som Naval Ravikant och Paul Chek uppmuntrar vi till närvaro, självinvestering och ett inre lugn."
+        />
+      </View>
+
+      {/* 🧘 Meditationer */}
+      <Text style={[local.title, { color: colors.primaryText }]}>Meditationer</Text>
+      <FlatList
+        horizontal
+        data={meditations}
+        keyExtractor={(item) => item.id}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingLeft: 24, paddingBottom: 40 }}
+        renderItem={({ item }) => (
+          <View style={{ marginRight: 16, width: cardWidth }}>
+            <MeditationCard
+              id={item.id}
+              title={item.title}
+              description={item.shortdescription}
+              thumbnail={item.thumbnail}
+            />
+          </View>
+        )}
       />
-      <Text style={[local.title, { color: colors.primaryText }]}>Stillhet 🌿</Text>
-      <Text style={[local.subtitle, { color: colors.secondaryText }]}>
-        Din plats för återhämtning, fokus och lugn.
-      </Text>
-      <Text style={[local.text, { color: colors.primaryText }]}>
-        Snart kan du utforska meditationer, andningsövningar och stilla stunder direkt i appen.
-      </Text>
+
       <Pressable style={[local.button, { backgroundColor: '#DBBEC0' }]} onPress={openInstagram}>
         <Text style={local.buttonText}>Följ @fabulousfive.se</Text>
       </Pressable>
@@ -36,35 +68,22 @@ export default function CalmScreen() {
 const local = StyleSheet.create({
   container: {
     padding: 24,
-    alignItems: 'center',
-    justifyContent: 'center',
     flexGrow: 1,
   },
-  image: {
-    width: '100%',
-    height: undefined,
+  philosophyWrapper: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    width: Dimensions.get('window').width * 0.5,
     aspectRatio: 1,
-    marginBottom: 0,
-    borderRadius: 5,
+    zIndex: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     fontFamily: 'Lato',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 18,
-    fontFamily: 'Lato',
     marginBottom: 16,
-    textAlign: 'center',
-  },
-  text: {
-    fontSize: 16,
-    fontFamily: 'Lato',
-    textAlign: 'center',
-    marginBottom: 32,
+    marginTop: Dimensions.get('window').width * 0.5 + 40,
   },
   button: {
     paddingVertical: 12,
@@ -74,6 +93,7 @@ const local = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 6,
     elevation: 3,
+    alignSelf: 'center',
   },
   buttonText: {
     color: '#fff',

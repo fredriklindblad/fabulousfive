@@ -65,6 +65,11 @@ export const getRecipes = async () => {
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
+export const getMeditations = async () => {
+  const snapshot = await getDocs(collection(db, 'meditations'));
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+};
+
 export const saveUserProfile = async ({ name, lang, theme, birthyear, interests }) => {
   const user = getAuth().currentUser;
   if (!user) return;
@@ -78,8 +83,8 @@ export const saveUserProfile = async ({ name, lang, theme, birthyear, interests 
     theme,
     birthyear,
     interests,
-    createdAt: new Date().toISOString(),
-  });
+    updatedAt: new Date().toISOString(),
+  }, { merge: true });
 };
 
 export const fetchAllUsers = async () => {

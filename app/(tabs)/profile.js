@@ -109,6 +109,12 @@ export default function ProfileScreen() {
         </Text>
       ),
       headerTitleAlign: 'center',
+      headerRight: () =>
+        user?.email === 'fredrik-lindblad@hotmail.com' ? (
+          <TouchableOpacity onPress={() => router.push('/admin/users')}>
+            <Ionicons name="shield-checkmark-outline" size={24} color={colors.primaryText} style={{ marginRight: 12 }} />
+          </TouchableOpacity>
+        ) : null,
     });
   }, [user]);
 
@@ -298,7 +304,7 @@ export default function ProfileScreen() {
               style={local.settingsRow}
             >
               <Ionicons name="mail-outline" size={20} color={colors.primaryText} />
-              <Text style={[local.settingsText, { marginLeft: 10, color: colors.primaryText }]}>info@fabulousfive.se</Text>
+              <Text style={[local.settingsText, { marginLeft: 5, color: colors.primaryText }]}>info@fabulousfive.se</Text>
             </TouchableOpacity>
 
             <View style={{ flex: 1 }} />
