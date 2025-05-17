@@ -31,10 +31,10 @@ export default function CalmScreen() {
       <View style={local.philosophyWrapper}>
         <PhilosophyCard
           title="Vår filosofi"
-          text="Livets visdom ligger i enkelhet. Investera i din kropp, rensa ditt sinne och återvänd till naturen. - inspirerat av Naval Ravikant & Paul Chek."
+          text="Livets visdom ligger i enkelhet. Investera i din kropp, rensa ditt sinne och återvänd till naturen."
           image="https://source.unsplash.com/300x300/?zen"
           variant="topRight"
-          modalContent="Vi tror på ett liv i harmoni med naturen, där fysisk rörelse, mental stillhet och medveten kost går hand i hand. Inspirerade av tänkare som Naval Ravikant och Paul Chek uppmuntrar vi till närvaro, självinvestering och ett inre lugn."
+          modalContent="Vi tror på ett liv i harmoni med naturen, där fysisk rörelse, mental stillhet och medveten kost går hand i hand. Vi uppmuntrar till närvaro, självinvestering och ett inre lugn."
         />
       </View>
 
@@ -45,7 +45,7 @@ export default function CalmScreen() {
         data={meditations}
         keyExtractor={(item) => item.id}
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingLeft: 24, paddingBottom: 40 }}
+        contentContainerStyle={{ paddingBottom: 40 }}
         renderItem={({ item }) => (
           <View style={{ marginRight: 16, width: cardWidth }}>
             <MeditationCard

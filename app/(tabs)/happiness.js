@@ -1,15 +1,30 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { useGlobalStyles } from '@/globalStyles';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
+import PhilosophyCard from '@/components/PhilosophyCard';
 
 export default function HappinessScreen() {
   const { styles: global, colors } = useGlobalStyles();
   const { t } = useTranslation();
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={local.container}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: colors.background }}
+      contentContainerStyle={local.container}
+    >
+      {/* 💭 Filosofiruta */}
+      <View style={local.philosophyWrapper}>
+        <PhilosophyCard
+          title="Vår filosofi"
+          text="Lycka handlar inte om att ha allt – utan om att uppskatta det vi redan har."
+          image="https://source.unsplash.com/300x300/?happy"
+          variant="topRight"
+          modalContent="Vi tror att daglig reflektion över det som är bra stärker känslan av glädje och tacksamhet. En positiv inre dialog skapar en mer hållbar lycka."
+        />
+      </View>
+
       <Ionicons name="happy-outline" size={100} color={colors.primaryText} style={local.icon} />
 
       <Text style={[local.title, { color: colors.primaryText }]}>
@@ -40,8 +55,17 @@ const local = StyleSheet.create({
     justifyContent: 'center',
     flexGrow: 1,
   },
+  philosophyWrapper: {
+    position: 'absolute',
+    top: 24,
+    left: 24,
+    width: Dimensions.get('window').width * 0.5,
+    aspectRatio: 1,
+    zIndex: 1,
+  },
   icon: {
     marginBottom: 16,
+    marginTop: Dimensions.get('window').width * 0.5 + 40, // för att inte krocka med boxen
   },
   title: {
     fontSize: 24,

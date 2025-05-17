@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Dimensions } from 'react-native';
+import { View, Text, FlatList, Dimensions, StyleSheet } from 'react-native';
 import { getRecipes } from '@/services/firebase';
 import RecipeCard from '@/components/RecipeCard';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
 import { getAuth } from 'firebase/auth';
+import PhilosophyCard from '@/components/PhilosophyCard';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = screenWidth * 0.7;
@@ -50,7 +51,6 @@ export default function RecipeScreen() {
     });
   }, []);
 
-
   const renderCategory = (categoryKey) => {
     const data = groupedRecipes[categoryKey];
     if (!data || data.length === 0) return null;
@@ -61,7 +61,7 @@ export default function RecipeScreen() {
           marginLeft: 24,
           marginBottom: 12,
           marginTop: 10,
-          textAlign: 'left', // 👈 detta läggs till
+          textAlign: 'left',
         }]}>
           {t(categoryKey, categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1))}
         </Text>
@@ -89,11 +89,25 @@ export default function RecipeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* 📖 PhilosophyBox uppe till höger */}
+      <View style={local.philosophyWrapper}>
+        <PhilosophyCard
+          title="Vår filosofi"
+          text="Näring för kropp och själ är grunden till ett liv i balans."
+          image="https://source.unsplash.com/300x300/?healthy-food"
+          variant="topRight"
+          modalContent="Vi ser mat som mer än energi – det är ett verktyg för läkning, glädje och närvaro. Medvetna val vid varje måltid skapar långsiktig hälsa."
+        />
+      </View>
+
       {user ? (
         <FlatList
           data={categories}
           keyExtractor={(item) => item}
-          contentContainerStyle={{ paddingBottom: 64 }}
+          contentContainerStyle={{
+            paddingTop: screenWidth * 0.5 + 40, // utrymme under boxen
+            paddingBottom: 64,
+          }}
           renderItem={({ item }) => renderCategory(item)}
         />
       ) : (
@@ -102,6 +116,16 @@ export default function RecipeScreen() {
         </View>
       )}
     </View>
-);
-
+  );
 }
+
+const local = StyleSheet.create({
+  philosophyWrapper: {
+    position: 'absolute',
+    top: 24,
+    right: 24,
+    width: Dimensions.get('window').width * 0.5,
+    aspectRatio: 1,
+    zIndex: 1,
+  },
+});
