@@ -8,6 +8,7 @@ export default function MeditationCard({ id, title, description, thumbnail }) {
   const { colors } = useGlobalStyles();
 
   const handlePress = () => {
+    console.log('idSSSSSSSSSSSSSSSSS', id);
     router.push(`/meditation/${id}`);
   };
 

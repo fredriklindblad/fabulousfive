@@ -1,6 +1,12 @@
 {
   "expo": {
     "name": "Fabulous Five",
+    "shortName": "f-five",
+    "startUrl": ".",
+    "display": "standalone",
+    "backgroundColor": "#ffffff",
+    "themeColor": "#f5a623",
+    "description": "Din personliga feel good-app",
     "slug": "fabulousfive",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -27,6 +33,20 @@
       "package": "com.fabulousfive.app"
     },
     "web": {
+      "name": "Fabulous Five",
+      "shortName": "Fabulous",
+      "description": "Din personliga feel good-app",
+      "display": "standalone",
+      "startUrl": ".",
+      "themeColor": "#f5a623",
+      "backgroundColor": "#ffffff",
+      "icons": [
+        {
+          "src": "./assets/icon-ff.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ],
       "output": "static",
       "bundler": "metro"
     },

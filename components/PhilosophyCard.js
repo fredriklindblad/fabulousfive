@@ -56,14 +56,24 @@ export default function PhilosophyCard({
 
   return (
     <>
-      <View style={[styles.card, { backgroundColor: '#f2f2f2' }]}>
+      <View style={[
+        styles.card,
+        {
+          backgroundColor: colors.philosophyBackground,
+          borderColor: colors.philosophyBorder,
+          shadowColor: colors.cardShadow,
+        },
+      ]}>
         {renderImage()}
         <View style={{ padding: 16 }}>
-          <Text style={[styles.title, { color: colors.primaryText }]}>{title}</Text>
-          <Text style={[styles.text, { color: colors.secondaryText }]}>{text}</Text>
+          <Text style={[styles.title, { color: colors.primaryText, textAlign: 'center' }]}>
+            {title}
+          </Text>
+          <Text style={[styles.text, { color: colors.secondaryText }]}>
+            {text}
+          </Text>
         </View>
 
-        {/* Info-ikon */}
         {modalContent && (
           <TouchableOpacity style={styles.infoIcon} onPress={() => setModalVisible(true)}>
             <Ionicons name="information-circle-outline" size={24} color={colors.primaryText} />
@@ -71,7 +81,6 @@ export default function PhilosophyCard({
         )}
       </View>
 
-      {/* Modal */}
       <Modal
         visible={modalVisible}
         animationType="fade"
@@ -100,6 +109,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     overflow: 'hidden',
     position: 'relative',
+    borderWidth: 1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 3,
   },
   title: {
     fontSize: 18,
@@ -107,9 +121,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   text: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: 'Lato',
-    lineHeight: 20,
+    lineHeight: 19,
   },
   imageTopRight: {
     position: 'absolute',

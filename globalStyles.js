@@ -13,6 +13,9 @@ export function useGlobalStyles() {
     buttonBackground: isDark ? '#3A302B' : '#5D3E17',         // Alltid brun knapp
     buttonText: isDark ? '#FFFFFF' : '#FFFFFF',              // Vit text på knappar
     border: isDark ? '#E6E6E6' : '#5D3E17',                   // Brun border
+    philosophyBackground: isDark ? '#3A302B' : '#DAC9B9',         // Bakgrund för filosofi
+    philosophyBorder: isDark ? '#E6E6E6' : '#5D3E17',         // Border för filosofi
+    cardShadow: isDark ? '#000000' : '#E6E6E6',               // Skugga för kort
   };
 
 

@@ -57,10 +57,6 @@ export default function CalmScreen() {
           </View>
         )}
       />
-
-      <Pressable style={[local.button, { backgroundColor: '#DBBEC0' }]} onPress={openInstagram}>
-        <Text style={local.buttonText}>Följ @fabulousfive.se</Text>
-      </Pressable>
     </ScrollView>
   );
 }

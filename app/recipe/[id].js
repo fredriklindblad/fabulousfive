@@ -75,7 +75,7 @@ export default function RecipeDetail() {
         </Text>
 
 
-        {recipe.varför && (
+        {recipe.why && (
           <Text
             style={{
               fontFamily: 'LatoItalic',
@@ -85,7 +85,7 @@ export default function RecipeDetail() {
               fontSize: 16,
             }}
           >
-            {recipe.varför}
+            {recipe.why}
           </Text>
         )}
 

@@ -264,7 +264,7 @@ export default function OnboardingOverlay() {
             style={[local.button, { backgroundColor: colors.primaryText }]}
             onPress={saveSettings}
           >
-            <Text style={local.buttonText}>Börja investera i din holistiska hälsa!</Text>
+            <Text style={local.buttonText}>Du är redo! Klicka för att börja investera i din holistiska hälsa!</Text>
           </TouchableOpacity>
         </View>
       )}
