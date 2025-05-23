@@ -1,3 +1,4 @@
+import * as FileSystem from 'expo-file-system';
 import { initializeApp, getApps } from 'firebase/app';
 import {
   getAuth,
@@ -12,8 +13,9 @@ import {
   collection,
   getDocs,
   doc,
-  setDoc
+  setDoc,
 } from 'firebase/firestore';
+import { getDoc } from 'firebase/firestore';
 
 import {
   getStorage,
@@ -33,24 +35,31 @@ const firebaseConfig = {
   measurementId: "G-ZR3W2EQZVR"
 };
 
-// ✅ Initiera bara om det inte redan finns appar (viktigt vid hot reload)
+// ✅ Initiera appen en gång
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
-// 📱 Mobil vs Web – auth init
+// 📱 Auth initiering – web eller mobil (Expo Go-safe)
 let auth;
-if (Platform.OS === 'web') {
-  auth = getAuth(app);
-} else {
-  try {
-    auth = initializeAuth(app, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
-  } catch (error) {
+try {
+  if (Platform.OS === 'web') {
     auth = getAuth(app);
+  } else {
+    const isExpoGo = typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
+    if (isExpoGo) {
+      console.log('Expo Go: fallback till getAuth()');
+      auth = getAuth(app);
+    } else {
+      auth = initializeAuth(app, {
+        persistence: getReactNativePersistence(AsyncStorage),
+      });
+    }
   }
+} catch (err) {
+  console.log('Fallback to getAuth:', err.message);
+  auth = getAuth(app);
 }
 
-// 🔥 Databas + Storage
+// 🔥 Databas och Storage
 const db = getFirestore(app);
 const storage = getStorage(app);
 
@@ -70,8 +79,16 @@ export const getMeditations = async () => {
   return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 };
 
-export const saveUserProfile = async ({ name, lang, theme, birthyear, interests }) => {
-  const user = getAuth().currentUser;
+export const saveUserProfile = async ({
+  name = '',
+  lang = 'sv',
+  theme = 'light',
+  birthyear = '',
+  interests = [],
+  onboardingDone = true,
+  image = '',
+}) => {
+  const user = auth.currentUser;
   if (!user) return;
 
   const userRef = doc(db, 'users', user.uid);
@@ -83,13 +100,48 @@ export const saveUserProfile = async ({ name, lang, theme, birthyear, interests 
     theme,
     birthyear,
     interests,
+    image,
+    onboardingDone,
     updatedAt: new Date().toISOString(),
   }, { merge: true });
+};
+
+export const getUserProfile = async () => {
+  const user = auth.currentUser;
+  if (!user) return null;
+
+  const ref = doc(db, 'users', user.uid);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
 };
 
 export const fetchAllUsers = async () => {
   const snapshot = await getDocs(collection(db, 'users'));
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+};
+
+export const uploadProfileImage = async (uri, uid) => {
+  if (!uri || !uid) return '';
+
+  try {
+    const imageRef = ref(storage, `profileImages/${uid}.jpg`);
+
+    const base64 = await FileSystem.readAsStringAsync(uri, {
+      encoding: FileSystem.EncodingType.Base64,
+    });
+
+    const byteArray = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+
+    await uploadBytes(imageRef, byteArray, {
+      contentType: 'image/jpeg',
+    });
+
+    const downloadURL = await getDownloadURL(imageRef);
+    return downloadURL;
+  } catch (err) {
+    console.error('🔥 FEL VID UPPLADDNING:', err);
+    throw err;
+  }
 };
 
 export { auth, db, storage };

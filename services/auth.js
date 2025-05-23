@@ -3,7 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
-  signOut
+  signOut,
 } from 'firebase/auth';
 
 export const registerUser = async (email, password) => {
@@ -15,10 +15,23 @@ export const registerUser = async (email, password) => {
   }
 };
 
-export const loginUser = (email, password) =>
-  signInWithEmailAndPassword(auth, email, password);
+export const loginUser = async (email, password) => {
+  try {
+    return await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    console.error("Login error:", error);
+    throw error;
+  }
+};
 
-export const signOutUser = () => signOut(auth);
+export const signOutUser = async () => {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error("Sign out error:", error);
+    throw error;
+  }
+};
 
 export const resetPassword = async (email) => {
   try {

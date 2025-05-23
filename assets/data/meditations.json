@@ -1,0 +1,22 @@
+[
+  {
+    "id": "andas-in",
+    "title": "Andas in lugn",
+    "shortdescription": "En enkel andningsövning för att sänka stressen.",
+    "description": "Guided meditation med fokus på andningen.",
+    "thumbnail": "https://source.unsplash.com/300x300/?calm",
+    "url": "https://example.com/audio/andas-in.mp3",
+    "duration": "5 min",
+    "createdAt": "2025-05-21T08:00:00.000Z"
+  },
+  {
+    "id": "kroppsscanning",
+    "title": "Kroppsscanning",
+    "shortdescription": "Skapa kontakt med kroppen och släpp spänningar.",
+    "description": "Lugn kroppsscanning från topp till tå.",
+    "thumbnail": "https://source.unsplash.com/300x300/?relax",
+    "url": "https://example.com/audio/kroppsscanning.mp3",
+    "duration": "10 min",
+    "createdAt": "2025-05-21T08:15:00.000Z"
+  }
+]

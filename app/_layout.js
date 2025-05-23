@@ -2,14 +2,16 @@ import '@/services/i18n';
 import { Slot } from 'expo-router';
 import { useFonts } from 'expo-font';
 import { ActivityIndicator, View } from 'react-native';
-import { ThemeProvider } from '@/ThemeContext';
-import { LanguageProvider } from '@/LanguageContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { UserProvider } from '@/contexts/UserContext';
 import { ToastProvider } from '@/components/Toast';
 import { Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
-export default function AppLayout() {
+
+export default function Layout() {
   const [fontsLoaded] = useFonts({
     Lato: require('../assets/fonts/Lato-Regular.ttf'),
     LatoBold: require('../assets/fonts/Lato-Bold.ttf'),
@@ -25,14 +27,16 @@ export default function AppLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <LanguageProvider>
-        <UserProvider>
-          <ToastProvider>
-            <Slot />
-          </ToastProvider>
-        </UserProvider>
-      </LanguageProvider>
-    </ThemeProvider>
+    <SafeAreaView style={{ flex: 1 }} edges={['top', 'bottom']}>
+      <ThemeProvider>
+        <LanguageProvider>
+          <UserProvider>
+            <ToastProvider>
+              <Slot />
+            </ToastProvider>
+          </UserProvider>
+        </LanguageProvider>
+      </ThemeProvider>
+    </SafeAreaView>
   );
 }

@@ -44,7 +44,7 @@ export default function RecipeDetail() {
   return (
     <View style={{ flex: 1 }}>
       <Pressable
-        onPress={() => router.replace('/recipe')}
+        onPress={() => router.back()}
         style={{
           position: 'absolute',
           top: 40,

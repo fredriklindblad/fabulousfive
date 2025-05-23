@@ -6,13 +6,13 @@ import {
   StyleSheet,
   Dimensions,
   ScrollView,
+  Pressable,
   TouchableOpacity,
   Platform,
   Image,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { getDoc, doc } from 'firebase/firestore';
-import { Video } from 'expo-av';
 import { db } from '@/services/firebase';
 import { useGlobalStyles } from '@/globalStyles';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,9 +21,10 @@ const screenWidth = Dimensions.get('window').width;
 
 export default function MeditationDetail() {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
   const [meditation, setMeditation] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showVideo, setShowVideo] = useState(false); // Web: visa direkt
+  const [showVideo, setShowVideo] = useState(false);
   const { colors, styles: global } = useGlobalStyles();
   const videoRef = useRef(null);
 
@@ -70,40 +71,60 @@ export default function MeditationDetail() {
   }
 
   return (
-    <ScrollView
-      style={{ backgroundColor: colors.background }}
-      contentContainerStyle={styles.container}
-    >
-      <Text style={[styles.title, { color: colors.primaryText }]}>
-        {meditation.title}
-      </Text>
-      <Text style={[styles.description, { color: colors.secondaryText }]}>
-        {meditation.why}
-      </Text>
+    <View style={{ flex: 1 }}>
+      <Pressable
+        onPress={() => router.back()}
+        style={{
+          position: 'absolute',
+          top: 40,
+          right: 20,
+          zIndex: 10,
+          backgroundColor: colors.cardBackground,
+          padding: 8,
+          borderRadius: 30,
+          shadowColor: '#000',
+          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: 2 },
+          shadowRadius: 4,
+        }}
+      >
+        <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+      </Pressable>
+      <ScrollView
+        style={{ backgroundColor: colors.background }}
+        contentContainerStyle={styles.container}
+      >
+        <Text style={[styles.title, { color: colors.primaryText }]}>
+          {meditation.title}
+        </Text>
+        <Text style={[styles.description, { color: colors.secondaryText }]}>
+          {meditation.why}
+        </Text>
 
-      {!showVideo && (
-        <TouchableOpacity style={styles.thumbnailWrapper} onPress={openFullscreen}>
-          {meditation.thumbnail ? (
-            <Image source={{ uri: meditation.thumbnail }} style={styles.thumbnail} />
-          ) : (
-            <View style={[styles.thumbnail, { backgroundColor: '#ccc' }]} />
-          )}
-          <View style={styles.playButton}>
-            <Ionicons name="play-circle" size={64} color="#fff" />
-          </View>
-        </TouchableOpacity>
-      )}
+        {!showVideo && (
+          <TouchableOpacity style={styles.thumbnailWrapper} onPress={openFullscreen}>
+            {meditation.thumbnail ? (
+              <Image source={{ uri: meditation.thumbnail }} style={styles.thumbnail} />
+            ) : (
+              <View style={[styles.thumbnail, { backgroundColor: '#ccc' }]} />
+            )}
+            <View style={styles.playButton}>
+              <Ionicons name="play-circle" size={64} color="#fff" />
+            </View>
+          </TouchableOpacity>
+        )}
 
-      {showVideo && meditation.videoUrl && (
-        <Video
-          ref={videoRef}
-          source={{ uri: meditation.videoUrl }}
-          useNativeControls
-          resizeMode="contain"
-          style={styles.video}
-        />
-      )}
-    </ScrollView>
+        {showVideo && meditation.videoUrl && (
+          <Video
+            ref={videoRef}
+            source={{ uri: meditation.videoUrl }}
+            useNativeControls
+            resizeMode="contain"
+            style={styles.video}
+          />
+        )}
+      </ScrollView>
+    </View> 
   );
 }
 

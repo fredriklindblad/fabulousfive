@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
 import { getMove } from '@/services/firebase';
 import MoveItem from '@/components/MoveItem';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
-import PhilosophyCard from '@/components/PhilosophyCard';
+import PhilosophyBox from '@/components/PhilosophyBox';
 
 export default function MoveScreen() {
   const [move, setMove] = useState([]);
@@ -26,54 +32,49 @@ export default function MoveScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* 💡 Filosofiruta */}
-      <View style={local.philosophyWrapper}>
-        <PhilosophyCard
-          title="Vår filosofi"
-          text="Rörelse är inte bara träning – det är ett sätt att leva, känna, vara."
-          image="https://source.unsplash.com/300x300/?movement"
-          variant="topRight"
-          modalContent="Vi tror på rörelse som ett uttryck för livskraft. Regelbunden fysisk aktivitet stärker både kroppen och sinnet. Det handlar inte om prestation – utan om närvaro och kontakt med kroppen."
-        />
-      </View>
+      <PhilosophyBox
+        title="Vår filosofi"
+        text="Vi tror på stillhet som ett sätt att återknyta till oss själva. Genom meditation, reflektion och närvaro kan vi skapa balans och lugn i vardagen."
+      />
 
-      <FlatList
-        contentContainerStyle={{ padding: 24, paddingBottom: 64 }}
-        data={move}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={
-          <Text
-            style={[
-              styles.header,
-              {
-                marginBottom: 16,
-                marginTop: Dimensions.get('window').width * 0.5 + 40, // för att inte krocka med boxen
-              },
-            ]}
-          >
-            {t('daily_inspiration', 'Dagens inspiration')}
-          </Text>
-        }
-        renderItem={({ item }) => (
-          <MoveItem title={item.title} description={item.description} />
-        )}
-        ListEmptyComponent={
-          <Text style={styles.text}>
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[local.container, { minHeight: Dimensions.get('window').height }]}
+      >
+        <Text style={[local.title, { color: colors.primaryText }]}>
+          {t('daily_inspiration', 'Dagens inspiration')}
+        </Text>
+
+        {move.length > 0 ? (
+          move.map((item) => (
+            <MoveItem
+              key={item.id}
+              title={item.title}
+              description={item.description}
+            />
+          ))
+        ) : (
+          <Text style={[styles.text, { marginTop: 12 }]}>
             {t('no_move_items', 'Inget att visa ännu.')}
           </Text>
-        }
-      />
+        )}
+
+        <View style={{ height: 100 }} />
+      </ScrollView>
     </View>
   );
 }
 
 const local = StyleSheet.create({
-  philosophyWrapper: {
-    position: 'absolute',
-    top: 24,
-    left: 24,
-    width: Dimensions.get('window').width * 0.5,
-    aspectRatio: 1,
-    zIndex: 1,
+  container: {
+    paddingTop: 24,
+    paddingHorizontal: 24,
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    fontFamily: 'Lato',
+    marginBottom: 16,
   },
 });

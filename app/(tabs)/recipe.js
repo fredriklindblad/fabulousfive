@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, Dimensions, StyleSheet } from 'react-native';
-import { getRecipes } from '@/services/firebase';
+import {
+  View,
+  Text,
+  ScrollView,
+  FlatList,
+  Dimensions,
+  StyleSheet,
+} from 'react-native';
+import { getRecipes, auth } from '@/services/firebase';
 import RecipeCard from '@/components/RecipeCard';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
-import { getAuth } from 'firebase/auth';
-import PhilosophyCard from '@/components/PhilosophyCard';
+import PhilosophyBox from '@/components/PhilosophyBox';
 
 const screenWidth = Dimensions.get('window').width;
 const cardWidth = screenWidth * 0.7;
@@ -19,7 +25,6 @@ export default function RecipeScreen() {
   const categories = ['frukost', 'lunch', 'middag', 'snacks'];
 
   useEffect(() => {
-    const auth = getAuth();
     const currentUser = auth.currentUser;
 
     if (!currentUser) {
@@ -57,12 +62,7 @@ export default function RecipeScreen() {
 
     return (
       <View key={categoryKey} style={{ marginBottom: 32 }}>
-        <Text style={[styles.header, {
-          marginLeft: 24,
-          marginBottom: 12,
-          marginTop: 10,
-          textAlign: 'left',
-        }]}>
+        <Text style={[local.title, { color: colors.primaryText }]}>
           {t(categoryKey, categoryKey.charAt(0).toUpperCase() + categoryKey.slice(1))}
         </Text>
         <FlatList
@@ -70,7 +70,7 @@ export default function RecipeScreen() {
           data={data}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingLeft: 24 }}
+          contentContainerStyle={{ paddingBottom: 12, paddingRight: 24 }}
           renderItem={({ item }) => (
             <View style={{ marginRight: 16, width: cardWidth }}>
               <RecipeCard
@@ -82,6 +82,7 @@ export default function RecipeScreen() {
               />
             </View>
           )}
+          style={{ flex: 1 }}
         />
       </View>
     );
@@ -89,43 +90,41 @@ export default function RecipeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      {/* 📖 PhilosophyBox uppe till höger */}
-      <View style={local.philosophyWrapper}>
-        <PhilosophyCard
-          title="Vår filosofi"
-          text="Näring för kropp och själ är grunden till ett liv i balans."
-          image="https://source.unsplash.com/300x300/?healthy-food"
-          variant="topRight"
-          modalContent="Vi ser mat som mer än energi – det är ett verktyg för läkning, glädje och närvaro. Medvetna val vid varje måltid skapar långsiktig hälsa."
-        />
-      </View>
+      <PhilosophyBox
+        title="Vår filosofi"
+        text="Vi tror på stillhet som ett sätt att återknyta till oss själva. Genom meditation, reflektion och närvaro kan vi skapa balans och lugn i vardagen."
+      />
 
-      {user ? (
-        <FlatList
-          data={categories}
-          keyExtractor={(item) => item}
-          contentContainerStyle={{
-            paddingTop: screenWidth * 0.5 + 40, // utrymme under boxen
-            paddingBottom: 64,
-          }}
-          renderItem={({ item }) => renderCategory(item)}
-        />
-      ) : (
-        <View style={{ padding: 24 }}>
-          <Text style={styles.text}>Du behöver vara inloggad för att se recepten.</Text>
-        </View>
-      )}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={[local.container, { minHeight: Dimensions.get('window').height }]}
+      >
+        {user ? (
+          <>
+            <Text style={[local.title, { color: colors.primaryText }]}>Recept</Text>
+            {categories.map((item) => renderCategory(item))}
+            <View style={{ height: 100 }} />
+          </>
+        ) : (
+          <View style={{ padding: 24 }}>
+            <Text style={styles.text}>Du behöver vara inloggad för att se recepten.</Text>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
 
 const local = StyleSheet.create({
-  philosophyWrapper: {
-    position: 'absolute',
-    top: 24,
-    right: 24,
-    width: Dimensions.get('window').width * 0.5,
-    aspectRatio: 1,
-    zIndex: 1,
+  container: {
+    paddingTop: 24,
+    paddingHorizontal: 24,
+    flexGrow: 1,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    fontFamily: 'Lato',
+    marginBottom: 16,
   },
 });

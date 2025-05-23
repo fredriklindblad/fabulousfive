@@ -4,25 +4,24 @@ import {
   TextInput,
   Text,
   StyleSheet,
-  Alert,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  Dimensions,
+  ScrollView,
 } from 'react-native';
 import { loginUser, resetPassword } from '@/services/auth';
 import { Ionicons } from '@expo/vector-icons';
-import { auth } from '@/services/firebase';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
 import { useToast } from '@/components/Toast';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { Video } from 'expo-av';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { db, auth } from '@/services/firebase';
 
 
-export default function LoginScreen() {
+export default function login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showReset, setShowReset] = useState(false);
@@ -34,21 +33,33 @@ export default function LoginScreen() {
   const { showToast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), (user) => {
-      if (user) {
-        checkOnboarding();
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) checkOnboarding();
     });
     return unsubscribe;
   }, []);
 
   const checkOnboarding = async () => {
-    const done = await AsyncStorage.getItem('onboardingDone');
-    if (done === 'true') {
-      router.replace('/(tabs)/calm');
-    } else {
-      router.replace('/onboarding');
+    let done = await AsyncStorage.getItem('onboardingDone');
+
+    // 🔁 Om det inte finns lokalt, kolla Firestore
+    if (done === null && auth.currentUser) {
+      try {
+        const userRef = doc(db, 'users', auth.currentUser.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          done = data.onboardingDone ? 'true' : 'false';
+
+          // 🧠 Cacha lokalt för framtida starter
+          await AsyncStorage.setItem('onboardingDone', done);
+        }
+      } catch (err) {
+        console.log('❌ Kunde inte hämta onboarding-status från Firestore:', err.message);
+      }
     }
+
+    router.replace(done === 'true' ? '/(tabs)/calm' : '/onboarding');
   };
 
 
@@ -76,7 +87,7 @@ export default function LoginScreen() {
       showToast(message);
     }
   };
-  
+
   const handlePasswordReset = async () => {
     if (!email) {
       showToast(t('enter_email_first', 'Fyll i din e-postadress först.'));
@@ -95,127 +106,98 @@ export default function LoginScreen() {
   };
 
   return (
-    <View style={{ flex: 1, overflow: 'hidden' }}>
-      {/* 🎬 Video för mobil/web */}
-      {Platform.OS !== 'web' ? (
-        <Video
-          source={require('../../public/start-background.mp4')}
-          rate={1.0}
-          volume={0.0}
-          isMuted
-          resizeMode="cover"
-          shouldPlay
-          isLooping
-          style={[StyleSheet.absoluteFill]}
-        />
-      ) : (
-        <video
-          src="/start-background.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100vw',
-            height: '100vh',
-            objectFit: 'cover',
-            border: 'none',
-            margin: 0,
-            padding: 0,
-            zIndex: -1,
-            display: 'block',
-            overflow: 'hidden',
-          }}
-        />
-      )}
-
-      {/* 🔲 Innehåll ovanpå video */}
+    <View style={{ flex: 1 }}>
       <KeyboardAvoidingView
-        style={local.overlay}
+        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <TouchableOpacity onPress={() => router.replace('/start/welcome')}>
-          <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
-        </TouchableOpacity>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={local.scrollLogin}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TouchableOpacity onPress={() => router.replace('/start/welcome')}>
+            <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+          </TouchableOpacity>
 
-        <Text style={[local.title, { color: colors.primaryText }]}>
-          {t('login', 'Logga in')}
-        </Text>
-
-        {!showReset ? (
-          <>
-            <TextInput
-              placeholder={t('email', 'E-post')}
-              placeholderTextColor="#999"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              style={[local.input, { color: colors.primaryText }]}
-              autoFocus
-            />
-            <TextInput
-              placeholder={t('password', 'Lösenord')}
-              placeholderTextColor="#999"
-              secureTextEntry
-              value={password}
-              onChangeText={setPassword}
-              style={[local.input, { color: colors.primaryText }]}
-            />
-            <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handleLogin}>
-              <Text style={local.buttonText}>{t('login', 'Logga in')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity onPress={() => setShowReset(true)}>
-              <Text style={[local.link, { color: colors.secondaryText }]}>
-                {t('forgot_password', 'Glömt lösenord?')}
-              </Text>
-            </TouchableOpacity>
-          </>
-        ) : resetSuccess ? (
-          <Text style={[local.label, { color: colors.secondaryText }]}>
-            {t('reset_sent', 'Länk skickad! Kolla din inkorg.')}{'\n'}
-            {t('reset_info', 'Du återgår till inloggning om några sekunder...')}
+          <Text style={[local.title, { color: colors.primaryText }]}>
+            {t('login', 'Logga in')}
           </Text>
-        ) : (
-          <>
-            <Text style={[local.label, { color: colors.secondaryText }]}>
-              {t('reset_instruction', 'Ange din e-postadress nedan')}
-            </Text>
-            <TextInput
-              placeholder={t('email', 'E-post')}
-              placeholderTextColor="#999"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={setEmail}
-              style={[local.input, { color: colors.primaryText }]}
-            />
-            <TouchableOpacity style={[local.button, { backgroundColor: colors.primaryText }]} onPress={handlePasswordReset}>
-              <Text style={local.buttonText}>{t('reset_password', 'Återställ lösenord')}</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => setShowReset(false)}>
-              <Text style={[local.link, { color: colors.secondaryText }]}>
-                {t('back_to_login', 'Tillbaka till inloggning')}
+          {!showReset ? (
+            <>
+              <TextInput
+                placeholder={t('email', 'E-post')}
+                placeholderTextColor="#999"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+                style={[local.input, { color: colors.primaryText }]}
+              />
+              <TextInput
+                placeholder={t('password', 'Lösenord')}
+                placeholderTextColor="#999"
+                secureTextEntry
+                value={password}
+                onChangeText={setPassword}
+                style={[local.input, { color: colors.primaryText }]}
+              />
+              <TouchableOpacity
+                style={[local.button, { backgroundColor: colors.primaryText }]}
+                onPress={handleLogin}
+              >
+                <Text style={local.buttonText}>{t('login', 'Logga in')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setShowReset(true)}>
+                <Text style={[local.link, { color: colors.secondaryText }]}>
+                  {t('forgot_password', 'Glömt lösenord?')}
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : resetSuccess ? (
+            <Text style={[local.label, { color: colors.secondaryText }]}>
+              {t('reset_sent', 'Länk skickad! Kolla din inkorg.')}{'\n'}
+              {t('reset_info', 'Du återgår till inloggning om några sekunder...')}
+            </Text>
+          ) : (
+            <>
+              <Text style={[local.label, { color: colors.secondaryText }]}>
+                {t('reset_instruction', 'Ange din e-postadress nedan')}
               </Text>
-            </TouchableOpacity>
-          </>
-        )}
+              <TextInput
+                placeholder={t('email', 'E-post')}
+                placeholderTextColor="#999"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                value={email}
+                onChangeText={setEmail}
+                style={[local.input, { color: colors.primaryText }]}
+              />
+              <TouchableOpacity
+                style={[local.button, { backgroundColor: colors.primaryText }]}
+                onPress={handlePasswordReset}
+              >
+                <Text style={local.buttonText}>
+                  {t('reset_password', 'Återställ lösenord')}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => setShowReset(false)}>
+                <Text style={[local.link, { color: colors.secondaryText }]}>
+                  {t('back_to_login', 'Tillbaka till inloggning')}
+                </Text>
+              </TouchableOpacity>
+            </>
+          )}
+        </ScrollView>
       </KeyboardAvoidingView>
     </View>
   );
 }
 
 const local = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
@@ -256,12 +238,12 @@ const local = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 16,
   },
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
+  scrollLogin: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    paddingTop: 240,
     position: 'relative',
-    zIndex: 1,
   },
-
 });

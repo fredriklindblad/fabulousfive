@@ -1,12 +1,6 @@
 {
   "expo": {
     "name": "Fabulous Five",
-    "shortName": "f-five",
-    "startUrl": ".",
-    "display": "standalone",
-    "backgroundColor": "#ffffff",
-    "themeColor": "#f5a623",
-    "description": "Din personliga feel good-app",
     "slug": "fabulousfive",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -18,19 +12,17 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "jsEngine": "jsc"
     },
     "android": {
+      "package": "com.fabulousfive.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.fabulousfive.app"
+      }
     },
     "web": {
       "name": "Fabulous Five",
@@ -42,20 +34,29 @@
       "backgroundColor": "#ffffff",
       "icons": [
         {
-          "src": "./assets/icon-ff.png",
+          "src": "./assets/favicon-512.png",
           "sizes": "512x512",
           "type": "image/png"
+        },
+        {
+          "src": "./assets/favicon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "./assets/favicon-180.png",
+          "sizes": "180x180",
+          "type": "image/png"
         }
-      ],
-      "output": "static",
-      "bundler": "metro"
+      ]
     },
     "plugins": [
       "expo-notifications",
       "expo-localization",
       "expo-font",
       "expo-router",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-video"
     ],
     "extra": {
       "eas": {

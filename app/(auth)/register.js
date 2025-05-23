@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  View,
   TextInput,
   Text,
   StyleSheet,
@@ -8,17 +7,17 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  View,
 } from 'react-native';
 import { registerUser } from '@/services/auth';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-
-export default function RegisterScreen() {
+export default function register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,87 +44,93 @@ export default function RegisterScreen() {
 
     try {
       await registerUser(email.trim(), password);
-
-      // ✅ 1. Markera att onboarding inte är klar
       await AsyncStorage.setItem('onboardingDone', 'false');
-
-      // ✅ 2. Gå direkt till onboarding utan att vänta på onAuthStateChanged
       router.replace('/onboarding');
-
     } catch (error) {
-      Alert.alert(
-        t('registration_failed', 'Registrering misslyckades'),
-        error.message
-      );
+      Alert.alert(t('registration_failed', 'Registrering misslyckades'), error.message);
     }
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[local.container, { backgroundColor: colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <TouchableOpacity onPress={() => router.replace('/start/welcome')}>
-        <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
-      </TouchableOpacity>
-
-      <Text style={[local.title, { color: colors.primaryText }]}>
-        {t('register', 'Skapa konto')}
-      </Text>
-
-      <TextInput
-        placeholder={t('email', 'E-post')}
-        placeholderTextColor="#999"
-        autoCapitalize="none"
-        keyboardType="email-address"
-        value={email}
-        onChangeText={setEmail}
-        style={[local.input, { color: colors.primaryText }]}
-      />
-      <TextInput
-        placeholder={t('password', 'Lösenord')}
-        placeholderTextColor="#999"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-        style={[local.input, { color: colors.primaryText }]}
-      />
-      <TextInput
-        placeholder={t('confirm_password', 'Bekräfta lösenord')}
-        placeholderTextColor="#999"
-        secureTextEntry
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        style={[local.input, { color: colors.primaryText }]}
-      />
-
-      <TouchableOpacity
-        style={[local.button, { backgroundColor: colors.primaryText }]}
-        onPress={handleRegister}
+    <View style={{ flex: 1 }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <Text style={local.buttonText}>{t('register', 'Skapa konto')}</Text>
-      </TouchableOpacity>
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={local.scrollForm}
+          keyboardShouldPersistTaps="handled"
+        >
+          <TouchableOpacity
+            onPress={() => router.replace('/start/welcome')}
+            style={{ alignSelf: 'flex-start', marginBottom: 16 }}
+          >
+            <Ionicons name="arrow-back" size={24} color={colors.primaryText} />
+          </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-        <Text style={[local.link, { color: colors.secondaryText }]}>
-          {t('already_account', 'Har du redan ett konto? Logga in här.')}
-        </Text>
-      </TouchableOpacity>
-    </KeyboardAvoidingView>
+          <Text style={[local.title, { color: colors.primaryText }]}>
+            {t('register', 'Skapa konto')}
+          </Text>
+
+          <TextInput
+            placeholder={t('email', 'E-post')}
+            placeholderTextColor="#999"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
+            style={[local.input, { color: colors.primaryText }]}
+          />
+          <TextInput
+            placeholder={t('password', 'Lösenord')}
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
+            style={[local.input, { color: colors.primaryText }]}
+          />
+          <TextInput
+            placeholder={t('confirm_password', 'Bekräfta lösenord')}
+            placeholderTextColor="#999"
+            secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            style={[local.input, { color: colors.primaryText }]}
+          />
+
+          <TouchableOpacity
+            style={[local.button, { backgroundColor: colors.primaryText }]}
+            onPress={handleRegister}
+          >
+            <Text style={local.buttonText}>{t('register', 'Skapa konto')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+            <Text style={[local.link, { color: colors.secondaryText }]}>
+              {t('already_account', 'Har du redan ett konto? Logga in här.')}
+            </Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </View>
   );
 }
 
 const local = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
+  scrollForm: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 24,
+    paddingBottom: 40,
+    paddingTop: 240,
+    position: 'relative',
   },
   title: {
-    fontSize: 32,
+    fontSize: 26,
     fontWeight: 'bold',
     fontFamily: 'Lato',
-    marginBottom: 32,
+    marginBottom: 24,
     textAlign: 'center',
   },
   input: {

@@ -1,9 +1,8 @@
-// ✅ app/admin/users.js med isAdmin-kontroll
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
-import { fetchAllUsers } from '@/services/firebase';
+import { fetchAllUsers, auth } from '@/services/firebase';
 import { useGlobalStyles } from '@/globalStyles';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function AdminUserList() {
   const [users, setUsers] = useState([]);
@@ -12,7 +11,6 @@ export default function AdminUserList() {
   const { styles: global, colors } = useGlobalStyles();
 
   useEffect(() => {
-    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user || user.email !== 'fredrik-lindblad@hotmail.com') {
         setUnauthorized(true);
@@ -47,7 +45,9 @@ export default function AdminUserList() {
           <Text style={[styles.label, { color: colors.secondaryText }]}>Språk: {user.lang}</Text>
           <Text style={[styles.label, { color: colors.secondaryText }]}>Tema: {user.theme}</Text>
           <Text style={[styles.label, { color: colors.secondaryText }]}>Födelseår: {user.birthyear}</Text>
-          <Text style={[styles.label, { color: colors.secondaryText }]}>Intressen: {user.interests?.join(', ')}</Text>
+          <Text style={[styles.label, { color: colors.secondaryText }]}>
+            Intressen: {user.interests?.join(', ')}
+          </Text>
         </View>
       ))}
     </ScrollView>

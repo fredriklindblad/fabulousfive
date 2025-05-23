@@ -1,0 +1,30 @@
+[
+  {
+    "id": "green-smoothie",
+    "title": "Grön smoothie",
+    "description": "En uppfriskande smoothie med spenat, banan och ingefära.",
+    "ingredients": ["1 banan", "1 näve spenat", "1 tsk riven ingefära", "2 dl havremjölk"],
+    "steps": [
+      "Lägg alla ingredienser i en mixer.",
+      "Mixa tills slät.",
+      "Servera direkt."
+    ],
+    "tags": ["veganskt", "energi", "frukost"],
+    "image": "https://source.unsplash.com/300x300/?smoothie",
+    "createdAt": "2025-05-21T08:00:00.000Z"
+  },
+  {
+    "id": "avokado-toast",
+    "title": "Avokadomacka",
+    "description": "Klassisk macka med mosad avokado och chiliflakes.",
+    "ingredients": ["1 skiva rågbröd", "1 avokado", "Chiliflakes", "Salt"],
+    "steps": [
+      "Rosta brödet.",
+      "Mosa avokadon och bred på.",
+      "Strö över chiliflakes och salt."
+    ],
+    "tags": ["veganskt", "snabbt"],
+    "image": "https://source.unsplash.com/300x300/?avocado-toast",
+    "createdAt": "2025-05-21T08:15:00.000Z"
+  }
+]

@@ -1,23 +1,27 @@
 import { useFonts } from 'expo-font';
 import { ActivityIndicator, View, Image, Pressable, Text } from 'react-native';
-import { ThemeProvider } from '@/ThemeContext';
-import { LanguageProvider } from '@/LanguageContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { Tabs, useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useGlobalStyles } from '@/globalStyles';
 import { useUser } from '@/contexts/UserContext';
-import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { LinearGradient } from 'expo-linear-gradient';
 import '@/services/i18n';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useEffect, useState } from 'react';
+import HeaderAvatar from '@/components/profile/HeaderAvatar';
+
 
 export default function TabsLayout() {
-  useRequireAuth(); // Kolla om användaren är inloggad
   const { t } = useTranslation();
   const router = useRouter();
   const pathname = usePathname();
   const { colors } = useGlobalStyles();
   const user = useUser();
+
+
 
   return (
     <ThemeProvider>
@@ -42,25 +46,33 @@ export default function TabsLayout() {
             headerLeft: () => (
               <Pressable
                 onPress={() => router.push('/philosophy')}
-                style={{ marginLeft: 16, marginBottom: 20, alignItems: 'center' }}
+                style={{ marginLeft: 16, marginTop: -20, alignItems: 'center' }}
               >
                 <Image
                   source={require('../../assets/icon-ff.png')}
                   style={{ width: 50, height: 50 }}
                   resizeMode="contain"
                 />
-                <Text style={{ fontSize: 12, color: colors.primaryText, fontFamily: 'Lato' }}>
-                  {t('philosophy', 'Filosofi')}
-                </Text>
               </Pressable>
             ),
             headerRight: () => (
-              <Pressable onPress={() => router.push('/profile')} style={{ paddingRight: 16 }}>
-                <Ionicons name="person-circle-outline" size={28} color={colors.primaryText} />
-                <Text style={{ fontSize: 12, color: colors.primaryText, fontFamily: 'Lato' }}>
-                  {user?.name ?? t('profile', 'Profil')}
+              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 12 }}>
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    fontSize: 12,
+                    fontFamily: 'Lato',
+                    color: colors.primaryText,
+                    maxWidth: 100,
+                    marginTop: 25,
+                    marginRight: 8,
+                    textAlign: 'right',
+                  }}
+                >
+                  {user?.name ?? ''}
                 </Text>
-              </Pressable>
+                <HeaderAvatar />
+              </View>
             ),
           }}
         >
@@ -106,6 +118,7 @@ export default function TabsLayout() {
           <Tabs.Screen name="philosophy" options={{ href: null }} />
           <Tabs.Screen name="ai" options={{ href: null }} />
         </Tabs>
+
 
         {/* F5 AI-knapp med gradient border */}
         <View style={{ position: 'absolute', bottom: 0, alignSelf: 'center', zIndex: 100 }}>

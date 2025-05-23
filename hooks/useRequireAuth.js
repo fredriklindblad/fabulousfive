@@ -1,12 +1,13 @@
 import { useEffect } from 'react';
 import { useRouter } from 'expo-router';
-import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from '@/services/firebase';
 
 export const useRequireAuth = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(getAuth(), (user) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
         router.replace('/start/welcome');
       }
